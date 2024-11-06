@@ -13,18 +13,13 @@ metadata:
   can_I_use_this_form: |
     If you are appealing a case, you can use this interview to write an informal brief to the Appeals Court.
   before_you_start: |
-    This interview will help you write an informal brief to the Appeals Court
-    
-    Before you get started, please gather:
-    
-    1. Facts surrounding your case.
-    2. The lower court's ruling.
-    3. The judge's name from the lower court.
-    
-    When you are finished, you will need to:
-    
-    1. Submit this form to the Appeals Court.
-    2. Wait for a reply from the other side.
+        You will need to know the following information to complete this interview:
+
+        * The **Appeals Court** docket number for your case
+        * The **trial court** docket number for your case
+        * The names of the plaintiff(s) and defendant(s) in your trial court case
+        * The current due date for your brief
+        * The date by which you are able to file your brief by, within the court guidelines 
   maturity: production
   estimated_completion_minutes: 30
   estimated_completion_delta: 5
@@ -84,7 +79,6 @@ objects:
   - challenged_judgments: DAList.using(target_number=1, there_are_any=True)
   - appeal_facts: DAList.using(target_number=1, there_are_any=True)
   - appeal_arguments: DAList.using(target_number=1, there_are_any=True)
-  - docket_number: str
 ---
 sections:
   - review_appellant_brief: Review your answers
@@ -97,8 +91,11 @@ code: |
   # Set the allowed courts for this interview
   allowed_courts = ['Appeals Court', 'Other']
   nav.set_section("review_appellant_brief")
-  user_role = "plaintiff"
-  user_ask_role = "plaintiff"
+  user_role #this could be used conditionally to direct the user to the appellee brief
+  if user_role == "Appellant": 
+    user_started_case = True
+  else: 
+    user_started_case = False
   users.gather()
   set_parts(subtitle=str(users))
   users[0].pronouns
@@ -111,7 +108,6 @@ code: |
   appeal_arguments
   set_progress(32)
   appeal_conclusion
-  served_informal_brief
   users[0].signature_date
   docket_number
   trial_court
@@ -123,6 +119,8 @@ code: |
   other_parties[0].email
   set_progress(64)
   users[0].email
+  served_informal_brief
+  signature_fields
   interview_order_appellant_brief = True
 ---
 ###################### Main order ######################
@@ -152,18 +150,17 @@ question: |
 subquestion: |
   This interview will help you write an informal brief to the Appeals Court
   
-  Before you get started, please gather:
-  
-  1. Facts surrounding your case.
-  2. The lower court's ruling.
-  3. The judge's name from the lower court.
-  
-  When you are finished, you will need to:
-  
-  1. Submit this form to the Appeals Court.
-  2. Wait for a reply from the other side.
+  You will need to know the following information to complete this interview:
 
-  If you are appealing a case, you can use this interview to write an informal brief to the Appeals Court.
+    * The **Appeals Court** docket number for your case
+  
+    * The **trial court** docket number for your case
+  
+    * The names of the plaintiff(s) and defendant(s) in your trial court case
+  
+    * The current due date for your brief
+  
+    * The date by which you are able to file your brief by, within the court guidelines 
 
   Most people take about 30 minutes to complete this interview.
 ---
@@ -172,40 +169,79 @@ question: |
   Information
 subquestion: |
   You can use this form to file an informal brief if you are appealing a court's decision to the Massachusetts Appeals Court.
+
+  Use this link to access a checklist for filing an appeal: (https://www.mass.gov/doc/checklist-for-preparing-a-brief-and-record-appendix-appeals-court/download)
 continue button field: Information
 ---
 id: Lower Court Information
 question: |
   Lower Court Information
 fields:
-  - "What date did the lower court decide your case?": decision_date
+  - "The case was filed in the lower court on": filed_date
+    datatype: date  
+  - "The lower court decided my case on": decision_date
     datatype: date
-  - "What was the name of the judge in the lower court? (Do not write 'Judge' - we will take care of that for you)": judge_name
+  - "The name of the judge was Judge": judge_name
+    input type: text
     required: False
-  - "Write the date the case was filed in the lower court": filed_date
-    datatype: date
+---
+id: users[0].pronouns
+question: |
+  What are your pronouns?
+fields: 
+  - "My pronouns are": users[0].pronouns
+    input type: text
+    required: False
 ---
 id: Your Appeal
 question: |
   Your Appeal
 subquestion: |
-  Write a description of what you are appealing.
+  List the issue or issues you are raising in this appeal and will discuss in your argument section.  
+  
+  It is your obligation to find out if any information in your case is impounded or confidential.
 fields:
-  - "Write what you are appealing": appeal_issues
+  - "Appeal": appeal_issues
     input type: area
+    help: |
+      An appeal is not a "do-over." An appeal is a review of a particular application of the law. You must appeal a specific legal error that you believe the trial court made. Errors can include the following:
+
+      
+      **Misrepresentation of legal precedent**: This occurs when the judge made a mistake about the law.
+
+      
+      **Reliance on evidence that should have been excluded**: This occurs when the judge either 
+        - Did not allow you to prove something that you should have been allowed to prove.
+        - Allowed the other side to prove something that they should not have been allowed to prove.
+
+    #add more common issues that the appeals court frequently sees
 ---
-id: Challenged Judgments
+id: Challenged judgments
 question: |
   What judgments from the lower court are you challenging?
+subquestion: |
+  Use citations from the record. This helps the appeals court understand exactly where the information you are challenging can be found. 
+  
+  Citations can be described using any abbreviations as long as they are clear and understandable.
+
+  
+  **Example**: “The judge said that the evidence was indadmissible because it was not relevant. Transcript 10/15/2024 at pg 5.” 
+  
+  **Example**: "Had the evidence been introduced it would have proven that I was not at fault. Exhibit #2 at pg 5.”  
+  
 fields:
-  - "Write the court decisions you want changed. Include the page numbers from the Record Appendix.": challenged_judgments
+  - "Write the court decisions you want changed": challenged_judgments
     input type: area
+    help: |
+      List specific decisions that the judge made. This does not have to necessarily be the final result of the case. You could say 'The judge's decision to allow _________ as evidence.'
 ---
 id: Facts
 question: |
   Facts
 subquestion: |
-  Write out the facts of your case. Provide the page number you found them on.
+   Describe all the facts in the case that are relevant to the issues raised on appeal.  Any factual statement must be followed by a “citation” to the record appendix.
+   
+   This means a statement or abbreviation showing the Appeals Court the specific page(s) in the record appendix or transcript(s) where evidence of that fact is found.
 fields:
   - "Write all of the facts about your case": appeal_facts
     input type: area
@@ -214,15 +250,34 @@ id: Argument
 question: |
   Argument
 subquestion: |
-  Write out your argument.
-  
-  List the facts that support your argument.
-  
-  List any other cases you used to support your argument.
+  Write an argument. This means you must list all issues you want to present to the Appeals Court, and, for each issue, write citations to supporting law in cases (preferably from Massachusetts), statutes, regulations, court rules, constitutional provisions, or other legal authorities.
 fields:
-  - "Write why you think the lower court was wrong. Include facts from your argument. Write down any other cases you used to support your argument.": appeal_arguments
+  - "Write your argument": appeal_arguments
     input type: area
     required: True
+---
+id: docket number 
+question: |
+  What is the **Appeals Court** docket number for your case?
+fields:
+  - "Docket number": docket_number
+    help: |
+      Example: 1448CV001026
+---
+id: user role
+question: |
+  Are you an appellant or appellee ?
+subquestion: | 
+  An **appellant** is a party who is asks a higher court to review the decision of the lower court, regardless of their party designation in the trial court.
+  
+  An **appellee** is a party who is not appealing and intends to respond to the appellant's request for a review of the lower court's decision, regardless of their party designation in the trial court.
+  
+fields: 
+  - no label: user_role 
+    input type: radio 
+    choices: 
+      - Appellant: APPELLANT 
+      - Appellee: APPELLEE
 ---
 id: Conclusion
 question: |
@@ -237,14 +292,16 @@ id: Confirmation Page
 question: |
   Confirmation Page
 subquestion: |
-  Confirm that you are sending the brief, record appendix, and appendix. If you are unsure, you can call the Appeals Court at 617-921-4443.
+  Confirm that you will send the following items to the Appeals Court. 
 fields:
-  - "Check yes if you are sending this brief (usually yes)": served_informal_brief
+  - "Brief": served_informal_brief
     datatype: yesno
-  - "Check yes if you are sending the record appendix (usually yes)": served_record_appendix
+  - "Record appendix": served_record_appendix
     datatype: yesno
-  - "Check yes if you are sending the appendix (usually yes)": served_impounded_appendix
+  - "Impounded appendix (if necessary)": served_impounded_appendix
     datatype: yesno
+    help: |
+      If you are unsure, you can call the Appeals Court at 617-921-4443
 ---
 id: Today s Date
 question: |
@@ -310,7 +367,7 @@ review:
   - Edit: other_parties.revisit
     button: |
       **Other parties**
-
+      
       % for item in other_parties:
         * ${ item }
       % endfor
@@ -368,8 +425,6 @@ rows: users
 columns:
   - Signature: |
       row_item.signature if defined("row_item.signature") else ""
-  - Pronouns: |
-      row_item.pronouns if defined("row_item.pronouns") else ""
   - Address: |
       row_item.address.block() if defined("row_item.address.address") else ""
   - Signature date: |
