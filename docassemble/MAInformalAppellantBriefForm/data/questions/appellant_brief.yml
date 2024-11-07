@@ -16,7 +16,7 @@ metadata:
         You will need to know the following information to complete this interview:
 
         * The **Appeals Court** docket number for your case
-        * The **trial court** docket number for your case
+        * The **Trial Court** docket number for your case
         * The names of the plaintiff(s) and defendant(s) in your trial court case
         * The current due date for your brief
         * The date by which you are able to file your brief by, within the court guidelines 
@@ -119,6 +119,13 @@ code: |
   other_parties[0].email
   set_progress(64)
   users[0].email
+  filing_institution
+  filing_electronic
+  if filing_electronic == "Yes": 
+    filing_mail = False
+  else: 
+    filing_mail = True
+  filing_mail
   served_informal_brief
   signature_fields
   interview_order_appellant_brief = True
@@ -214,7 +221,7 @@ fields:
         - Did not allow you to prove something that you should have been allowed to prove.
         - Allowed the other side to prove something that they should not have been allowed to prove.
 
-    #add more common issues that the appeals court frequently sees
+    #Add more common issues that the appeals court frequently sees
 ---
 id: Challenged judgments
 question: |
@@ -228,6 +235,8 @@ subquestion: |
   **Example**: “The judge said that the evidence was indadmissible because it was not relevant. Transcript 10/15/2024 at pg 5.” 
   
   **Example**: "Had the evidence been introduced it would have proven that I was not at fault. Exhibit #2 at pg 5.”  
+
+    #Add examples that the court believes are relevant
   
 fields:
   - "Write the court decisions you want changed": challenged_judgments
@@ -263,6 +272,25 @@ fields:
   - "Docket number": docket_number
     help: |
       Example: 1448CV001026
+---
+id: filing_institution
+question: |
+  Are you currently in a federal or state prison?
+yesno: filing_institution
+help: |
+      If you are in a federal or state prison, then you will mail the brief. There is a form that will automatically attach to your document. 
+---
+id: filing_mail
+question: |
+  Are you filing this brief in the mail?
+yesno: filing_mail
+---
+id: filing_electronic
+question: |
+  Are you filing this brief electronically?
+yesno: filing_electronic
+help: |
+  We will give you instructions on how to do this at the end of the interview. If you choose to select "No" then you will have to mail the brief. We will automatically fill out a form for you that will attach to your brief.
 ---
 id: user role
 question: |
