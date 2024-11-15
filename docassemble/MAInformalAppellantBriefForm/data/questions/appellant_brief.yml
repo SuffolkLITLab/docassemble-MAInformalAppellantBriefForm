@@ -89,7 +89,7 @@ comment: |
 id: interview_order_appellant_brief
 code: |
   # Set the allowed courts for this interview
-  allowed_courts = ['Appeals Court', 'Other']
+  allowed_courts = ['Other']
   nav.set_section("review_appellant_brief")
   user_role #this could be used conditionally to direct the user to the appellee brief
   if user_role == "Appellant": 
@@ -126,6 +126,10 @@ code: |
   else: 
     filing_mail = True
   filing_mail
+  if filing_mail == "Yes":
+    filing_electronic = False
+  else:
+    filing_electronic == True
   served_informal_brief
   signature_fields
   interview_order_appellant_brief = True
@@ -177,7 +181,9 @@ question: |
 subquestion: |
   You can use this form to file an informal brief if you are appealing a court's decision to the Massachusetts Appeals Court.
 
-  Use this link to access a checklist for filing an appeal: (https://www.mass.gov/doc/checklist-for-preparing-a-brief-and-record-appendix-appeals-court/download)
+  Click "Help" to access a checklist for filing an appeal
+help: |
+    - https://www.mass.gov/doc/checklist-for-preparing-a-brief-and-record-appendix-appeals-court/download
 continue button field: Information
 ---
 id: Lower Court Information
@@ -252,7 +258,7 @@ subquestion: |
    
    This means a statement or abbreviation showing the Appeals Court the specific page(s) in the record appendix or transcript(s) where evidence of that fact is found.
 fields:
-  - "Write all of the facts about your case": appeal_facts
+  - "Facts:": appeal_facts
     input type: area
 ---
 id: Argument
