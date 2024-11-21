@@ -44,7 +44,7 @@ metadata:
     AppealsCourt
   allowed_courts: 
     - "Appeals Court"
-  typical_role: "plaintiff"
+  typical_role: "appellant"
   al_weaver_version: "1.11.0"
   generated_on: "2024-10-24"
   languages:
@@ -89,18 +89,17 @@ comment: |
 id: interview_order_appellant_brief
 code: |
   # Set the allowed courts for this interview
-  allowed_courts = ['Other']
+  allowed_courts
   nav.set_section("review_appellant_brief")
   user_role #this could be used conditionally to direct the user to the appellee brief
-  if user_role == "Appellant": 
-    user_started_case = True
-  else: 
-    user_started_case = False
   users.gather()
-  set_parts(subtitle=str(users))
   users[0].pronouns
+  users[0].address.address
+  users[0].phone_number
+  set_parts(subtitle=str(users))
   Information
   set_progress(16)
+  trial_court
   decision_date
   appeal_issues
   challenged_judgments
@@ -110,24 +109,15 @@ code: |
   appeal_conclusion
   users[0].signature_date
   docket_number
-  trial_court
   set_progress(48)
-  other_parties.gather()
-  if user_role == "Appellant": 
-    user_started_case = True
-  else: 
-    user_started_case = False
-  users[0].address.address
-  users[0].phone_number
   other_parties[0].address.address
   other_parties[0].email
   set_progress(64)
-  users[0].email
   filing_institution
   filing_electronic
   filing_mail
-  served_informal_brief
   signature_fields
+  served_informal_brief
   interview_order_appellant_brief = True
 ---
 ###################### Main order ######################
@@ -161,7 +151,7 @@ subquestion: |
 
     * The **Appeals Court** docket number for your case
   
-    * The **trial court** docket number for your case
+    * The **trial court** your case was decided in
   
     * The names of the plaintiff(s) and defendant(s) in your trial court case
   
@@ -192,7 +182,7 @@ fields:
     datatype: date
   - "The name of the judge was Judge": judge_name
     input type: text
-    required: False
+    required: True
 ---
 id: users[0].pronouns
 question: |
@@ -238,7 +228,7 @@ subquestion: |
   
   **Example**: "Had the evidence been introduced it would have proven that I was not at fault. Exhibit #2 at pg 5.”  
 
-    #Add examples that the court believes are relevant
+# Add examples that the court believes are relevant
   
 fields:
   - "Write the court decisions you want changed": challenged_judgments
@@ -284,16 +274,16 @@ help: |
 ---
 id: filing_mail
 question: |
-  Are you filing this brief in the mail?
+  Are you filing this brief in the **mail**?
   
-  **Note:** You can only file this brief one time either **electronically** or in the **mail**.
+  - **Note:** You can only file this brief one time. If you choose to file by mail, do not file electronically. If you choose to file electronically, do not file by mail.
 yesno: filing_mail
 ---
 id: filing_electronic
 question: |
-  Are you filing this brief electronically?
+  Are you filing this brief **electronically**?
   
-  **Note:** You can only file this brief one time either **electronically** or in the **mail**.
+  - **Note:** You can only file this brief one time. If you choose to file by mail, do not file electronically. If you choose to file electronically, do not file by mail.
 yesno: filing_electronic
 help: |
   We will give you instructions on how to do this at the end of the interview. If you choose to select "No" then you will have to mail the brief. We will automatically fill out a form for you that will attach to your brief.
@@ -302,7 +292,7 @@ id: user role
 question: |
   Are you an appellant or appellee ?
 subquestion: | 
-  An **appellant** is a party who is asks a higher court to review the decision of the lower court, regardless of their party designation in the trial court.
+  This form is for appellants. An **appellant** is a party who is asks a higher court to review the decision of the lower court, regardless of their party designation in the trial court.
   
   An **appellee** is a party who is not appealing and intends to respond to the appellant's request for a review of the lower court's decision, regardless of their party designation in the trial court.
   
@@ -310,8 +300,7 @@ fields:
   - no label: user_role 
     input type: radio 
     choices: 
-      - Appellant: APPELLANT 
-      - Appellee: APPELLEE
+      - Appellant: APPELLANT #only offering one option for the user. We can make this conditional to direct the user to either the appellant brief or appellee brief.
 ---
 id: Conclusion
 question: |
@@ -336,6 +325,16 @@ fields:
     datatype: yesno
     help: |
       If you are unsure, you can call the Appeals Court at 617-921-4443
+---
+id: signature_fields
+question: |
+  Sign your name
+subquestion: |
+  By signing your name, you agree to
+  our terms and conditions.
+signature: target_variable
+under: |
+  ${ user }
 ---
 id: Today s Date
 question: |
@@ -460,7 +459,7 @@ columns:
   - Signature: |
       row_item.signature if defined("row_item.signature") else ""
   - Address: |
-      row_item.address.block() if defined("row_item.address.address") else ""
+      row_item.address.block() if defined("row_item.address") else ""
   - Signature date: |
       row_item.signature_date if defined("row_item.signature_date") else ""
   - Name: |
@@ -494,7 +493,7 @@ columns:
   - Name: |
       row_item.name.full() if defined("row_item.name.first") else ""
   - Address: |
-      row_item.address.block() if defined("row_item.address.address") else ""
+      row_item.address.block() if defined("row_item.address") else ""
   - Email: |
       row_item.email if defined("row_item.email") else ""
 edit:
