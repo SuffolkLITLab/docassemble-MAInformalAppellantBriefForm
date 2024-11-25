@@ -80,6 +80,7 @@ objects:
   - appeal_facts: DAList.using(target_number=1, there_are_any=True)
   - appeal_arguments: DAList.using(target_number=1, there_are_any=True)
   - record_appendix: DAFileList.using(target_number=1, there_are_any=True)
+  - informal_record_appendix: DAFileList.using(target_number=1, there_are_any=True)
 ---
 sections:
   - review_appellant_brief: Review your answers
@@ -93,6 +94,7 @@ code: |
   allowed_courts
   nav.set_section("review_appellant_brief")
   user_role #this could be used conditionally to direct the user to the appellee brief
+  user_ask_role = 'plaintiff'
   users.gather()
   users[0].pronouns
   users[0].address.address
@@ -100,6 +102,7 @@ code: |
   set_parts(subtitle=str(users))
   Information
   record_appendix
+  impounded_record_appendix
   set_progress(16)
   trial_court
   decision_date
@@ -120,7 +123,6 @@ code: |
   filing_electronic
   filing_mail
   signature_fields
-  served_informal_brief
   interview_order_appellant_brief = True
 ---
 ###################### Main order ######################
@@ -340,18 +342,18 @@ question: |
 subquestion: |
   Confirm that you will send the following items to the Appeals Court. 
 fields:
-  - "Brief": served_informal_brief
+  - "Brief": is_served_informal_brief
     datatype: yesno
-  - "Record appendix": served_record_appendix
+  - "Record appendix": is_served_record_appendix
     datatype: yesno
-  - "Impounded appendix (if necessary)": served_impounded_appendix
+  - "Impounded appendix (if necessary)": is_served_impounded_appendix
     datatype: yesno
     help: |
       If you are unsure, you can call the Appeals Court at 617-921-4443 or visit [https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
 ---
 id: record appendix
 question: |
-  Attach your record appendix
+  Upload your record appendix
 subquestion: |
   If you are the appealing party, your informal brief must be accompanied by a separate document called the **Record Appendix**. The Record Appendix contains copies of all the documents filed in or created by the lower court or agency that are not impounded and are relevant to the Appeals Court's review of the issues raised on appeal, including copies of all documents you have referenced in your informal brief. A Record Appendix template is provided as part of this pilot program. Please note that there is a special procedure for filing impounded information that is described below and in section (d) (4) of the Informal Brief Guidance.
 
@@ -369,13 +371,13 @@ subquestion: |
 
   Upload your file here.
 fields:
-  - "Record Appendix": record_appendix
+  - record_appendix: record_appendix
     datatype: file
     required: True
 ---
-id: impounded_record_appendix
+id: impounded record appendix
 question: |
-  Attach your impounded record appendix 
+  Upload your impounded record appendix 
 subquestion: |
   In addition to information that is automatically impounded or confidential under a law or court rule, such as the names of children or victims of certain crimes or financial statements in a divorce or child support case, any information or document that was impounded in the trial court continues to be impounded in the Appeals Court.  You are responsible for finding out which if any such laws or rules apply in your case. 
   
@@ -384,6 +386,12 @@ subquestion: |
   Documents that are not impounded but appear in an appendix and contain confidential or personal identifying information (PII) must be "redacted," which means the confidential information and PII is blacked out so it cannot be seen.  Examples of PII are Social Security numbers, taxpayer identification numbers, driver's license numbers, State-issued ID card numbers, passport numbers, financial account numbers, and credit or debit card numbers.
 
   [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
+
+    Upload your file here.
+fields:
+  - impounded_record_appendix: impounded_record_appendix
+    datatype: file
+    required: True
 ---
 id: signature_fields
 question: |
@@ -590,8 +598,8 @@ objects:
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, appellant_brief_attachment, record_appendix], filename="appellant_brief", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, appellant_brief_attachment, record_appendix, impounded_record_appendix], filename="appellant_brief", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix, impounded_record_appendix],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
 ---
 # Each attachment defines a key in an ALDocument. We use i as the placeholder here so the same template is 
 # used for "preview" and "final" keys, and logic in the template checks the value of 
