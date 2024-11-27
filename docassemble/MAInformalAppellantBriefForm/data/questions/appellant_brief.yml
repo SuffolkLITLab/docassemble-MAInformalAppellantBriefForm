@@ -2,6 +2,8 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.MassAccess:massaccess.yml
+  - docassemble.MassAppealsCourt:appeals-basic-questions.yml
+  - docassemble.MassAppealsCourt:efiling.yml
 ---
 metadata:
   title: >-
@@ -79,8 +81,14 @@ objects:
   - challenged_judgments: DAList.using(target_number=1, there_are_any=True)
   - appeal_facts: DAList.using(target_number=1, there_are_any=True)
   - appeal_arguments: DAList.using(target_number=1, there_are_any=True)
-  - record_appendix: DAFileList.using(target_number=1, there_are_any=True)
-  - informal_record_appendix: DAFileList.using(target_number=1, there_are_any=True)
+  - record_appendix: ALExhibit.using(
+      title="Record Appendix",
+      filename="record_appendix",
+      enabled=True
+  - informal_record_appendix: ALExhibit.using(
+      title="Impounded Record Appendix",
+      filename="impounded_record_appendix",
+      enabled=True
 ---
 sections:
   - review_appellant_brief: Review your answers
@@ -373,7 +381,7 @@ subquestion: |
 fields:
   - record_appendix: record_appendix
     datatype: file
-    required: True
+    required: False
 ---
 id: impounded record appendix
 question: |
@@ -391,7 +399,7 @@ subquestion: |
 fields:
   - impounded_record_appendix: impounded_record_appendix
     datatype: file
-    required: True
+    required: False
 ---
 id: signature_fields
 question: |
@@ -503,14 +511,6 @@ review:
     button: |
       **Write the court decisions you want changed**:
       > ${ single_paragraph(challenged_judgments) }
-  - Edit: court_question
-    button: |
-      **Have you gone to court yet?**:
-      ${ word(yesno(court_question)) }
-  - Edit: appellant_question
-    button: |
-      **Did you win in the lower court?**:
-      ${ word(yesno(appellant_question)) }
 ---
 continue button field: users.revisit
 question: |
@@ -598,8 +598,8 @@ objects:
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, appellant_brief_attachment, record_appendix, impounded_record_appendix], filename="appellant_brief", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix, impounded_record_appendix],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, appellant_brief_attachment], filename="appellant_brief", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
 ---
 # Each attachment defines a key in an ALDocument. We use i as the placeholder here so the same template is 
 # used for "preview" and "final" keys, and logic in the template checks the value of 
@@ -622,7 +622,14 @@ attachment:
 ---
 attachment:
   name: Record appendix
-  filename: record_appendix_attachment
+  filename: record_appendix
   docx template file: appellant_brief.docx
   variable name: record_appendix
+  decimal places: 2
+---
+attachment:
+  name: Impounded record appendix
+  filename: impounded_record_appendix
+  docx template file: appellant_brief.docx
+  variable name: impounded_record_appendix
   decimal places: 2
