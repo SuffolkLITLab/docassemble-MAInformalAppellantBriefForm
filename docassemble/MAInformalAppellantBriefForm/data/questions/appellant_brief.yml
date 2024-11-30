@@ -110,15 +110,7 @@ code: |
   set_parts(subtitle=str(users))
   Information
   record_appendix.gather()
-  if record_appendix.file:
-      record_appendix_text = record_appendix.text()
-  else:
-      record_appendix_text = "No Record Appendix provided."
   impounded_record_appendix.gather()
-  if impounded_record_appendix.file:
-      impounded_record_appendix_text = impounded_record_appendix.text()
-  else:
-      impounded_record_appendix_text = "No Impounded Record Appendix provided."
   set_progress(16)
   trial_court
   decision_date
