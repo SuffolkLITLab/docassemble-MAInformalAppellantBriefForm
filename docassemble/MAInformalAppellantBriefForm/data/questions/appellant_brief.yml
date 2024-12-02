@@ -84,11 +84,11 @@ objects:
   - record_appendix: ALExhibit.using(
       title="Record Appendix",
       filename="record_appendix",
-      enabled=True
-  - informal_record_appendix: ALExhibit.using(
+      enabled=True)
+  - impounded_record_appendix: ALExhibit.using(
       title="Impounded Record Appendix",
       filename="impounded_record_appendix",
-      enabled=True
+      enabled=True)
 ---
 sections:
   - review_appellant_brief: Review your answers
@@ -109,8 +109,8 @@ code: |
   users[0].phone_number
   set_parts(subtitle=str(users))
   Information
-  record_appendix
-  impounded_record_appendix
+  record_appendix.gather()
+  impounded_record_appendix.gather()
   set_progress(16)
   trial_court
   decision_date
@@ -379,9 +379,19 @@ subquestion: |
 
   Upload your file here.
 fields:
-  - record_appendix: record_appendix
+  - Upload: record_appendix
     datatype: file
     required: False
+---
+code: |
+  if record_appendix:
+      try:
+          # Extract text from the uploaded file
+          record_appendix_text = record_appendix.text()
+      except Exception as e:
+          record_appendix_text = "Could not extract text from the uploaded file."
+  else:
+      record_appendix_text = "No record appendix was uploaded."
 ---
 id: impounded record appendix
 question: |
@@ -397,9 +407,19 @@ subquestion: |
 
     Upload your file here.
 fields:
-  - impounded_record_appendix: impounded_record_appendix
+  - Upload: impounded_record_appendix
     datatype: file
     required: False
+---
+code: |
+  if impounded_record_appendix:
+      try:
+          # Extract text from the uploaded file
+          impounded_record_appendix_text = impounded_record_appendix.text()
+      except Exception as e:
+          impounded_record_appendix_text = "Could not extract text from the uploaded file."
+  else:
+      impounded_record_appendix_text = "No impounded record appendix was uploaded."
 ---
 id: signature_fields
 question: |
@@ -590,6 +610,7 @@ subquestion: |
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 
 progress: 100
+always include editable files: True
 ---
 # ALDocument objects specify the metadata for each template
 objects:
@@ -619,17 +640,3 @@ attachment:
   skip undefined: True
   docx template file: appellant_brief.docx
   tagged pdf: True
----
-attachment:
-  name: Record appendix
-  filename: record_appendix
-  docx template file: appellant_brief.docx
-  variable name: record_appendix
-  decimal places: 2
----
-attachment:
-  name: Impounded record appendix
-  filename: impounded_record_appendix
-  docx template file: appellant_brief.docx
-  variable name: impounded_record_appendix
-  decimal places: 2
