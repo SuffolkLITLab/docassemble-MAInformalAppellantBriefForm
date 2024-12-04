@@ -2,8 +2,6 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.MassAccess:massaccess.yml
-  - docassemble.MassAppealsCourt:appeals-basic-questions.yml
-  - docassemble.MassAppealsCourt:efiling.yml
 ---
 metadata:
   title: >-
@@ -81,14 +79,13 @@ objects:
   - challenged_judgments: DAList.using(target_number=1, there_are_any=True)
   - appeal_facts: DAList.using(target_number=1, there_are_any=True)
   - appeal_arguments: DAList.using(target_number=1, there_are_any=True)
-  - record_appendix: ALExhibit.using(
-      title="Record Appendix",
-      filename="record_appendix",
-      enabled=True)
-  - impounded_record_appendix: ALExhibit.using(
-      title="Impounded Record Appendix",
-      filename="impounded_record_appendix",
-      enabled=True)
+  - exhibit_attachment: ALExhibitDocument.using(
+          title="Exhibits",
+          filename="exhibits",
+          add_page_numbers=True,
+          include_table_of_contents=True,
+          include_exhibit_cover_pages=True,
+        )
 ---
 sections:
   - review_appellant_brief: Review your answers
@@ -109,8 +106,10 @@ code: |
   users[0].phone_number
   set_parts(subtitle=str(users))
   Information
-  record_appendix.gather()
-  impounded_record_appendix.gather()
+  record_appendix
+  impounded_record_appendix
+  if exhibit_attachment.exhibits.has_exhibits:
+    exhibit_attachment.exhibits.gather()
   set_progress(16)
   trial_court
   decision_date
@@ -292,8 +291,8 @@ question: |
 subquestion: | 
   An original paper copy may be mailed to the Appeals Court, Clerk's Office.
   
-  **1 Pemberton Square
-  Room 1200
+  **1 Pemberton Square,
+  Room 1200,
   Boston, MA, 02108**
   
   Also, mail a copy to each party. You will have to print out a copy of this brief to mail it.
@@ -377,15 +376,13 @@ subquestion: |
 
   [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
 
-  Upload your file here.
-fields:
-  - Upload: record_appendix
-    datatype: file
-    required: False
+  **Do you have a file to upload?**
+
+yesno: record_appendix
 ---
 code: |
   if record_appendix:
-      try:
+      try: 
           # Extract text from the uploaded file
           record_appendix_text = record_appendix.text()
       except Exception as e:
@@ -405,11 +402,9 @@ subquestion: |
 
   [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
 
-    Upload your file here.
-fields:
-  - Upload: impounded_record_appendix
-    datatype: file
-    required: False
+    **Do you have a file to upload?**
+  
+yesno: impounded_record_appendix
 ---
 code: |
   if impounded_record_appendix:
@@ -420,6 +415,15 @@ code: |
           impounded_record_appendix_text = "Could not extract text from the uploaded file."
   else:
       impounded_record_appendix_text = "No impounded record appendix was uploaded."
+---
+id: revisit exhibit_attachment
+continue button field: exhibit_attachment.revisit
+question: |
+  Edit your supporting exhibits
+subquestion: |
+  ${ exhibit_attachment.exhibits.rearrange_exhibits_table }
+
+  ${ exhibit_attachment.add_action() }
 ---
 id: signature_fields
 question: |
@@ -531,6 +535,27 @@ review:
     button: |
       **Write the court decisions you want changed**:
       > ${ single_paragraph(challenged_judgments) }
+  - Edit: exhibit_attachment.exhibits.has_exhibits
+    button: |
+      **Exhibits attached?**
+      
+      % if exhibit_attachment.exhibits.has_exhibits:
+      Yes
+      % elif not exhibit_attachment.exhibits.has_exhibits:
+      No
+      % endif
+  - note: |
+      **Supporting exhibits**:
+      
+      % if exhibit_attachment.exhibits.there_are_any:
+      ${ exhibit_attachment.exhibits.in_progress_exhibits }
+      % else:
+      You have not attached any exhibits yet
+      % endif
+
+      ${ exhibit_attachment.exhibits.add_action() }
+    css class: bg-secondary-subtle
+    show if: exhibit_attachment.exhibits.has_exhibits
 ---
 continue button field: users.revisit
 question: |
@@ -619,8 +644,8 @@ objects:
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, appellant_brief_attachment], filename="appellant_brief", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, appellant_brief_attachment, exhibit_attachment], filename="appellant_brief", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, exhibit_attachment],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
 ---
 # Each attachment defines a key in an ALDocument. We use i as the placeholder here so the same template is 
 # used for "preview" and "final" keys, and logic in the template checks the value of 
@@ -640,3 +665,4 @@ attachment:
   skip undefined: True
   docx template file: appellant_brief.docx
   tagged pdf: True
+  
