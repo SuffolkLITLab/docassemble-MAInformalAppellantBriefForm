@@ -360,7 +360,7 @@ fields:
 ---
 id: record appendix
 question: |
-  Upload your record appendix
+  Do you have your record appendix?
 subquestion: |
   If you are the appealing party, your informal brief must be accompanied by a separate document called the **Record Appendix**. The Record Appendix contains copies of all the documents filed in or created by the lower court or agency that are not impounded and are relevant to the Appeals Court's review of the issues raised on appeal, including copies of all documents you have referenced in your informal brief. A Record Appendix template is provided as part of this pilot program. Please note that there is a special procedure for filing impounded information that is described below and in section (d) (4) of the Informal Brief Guidance.
 
@@ -376,23 +376,13 @@ subquestion: |
 
   [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
 
-  **Do you have a file to upload?**
+  **You can upload this file on a later screen**
 
-yesno: record_appendix
----
-code: |
-  if record_appendix:
-      try: 
-          # Extract text from the uploaded file
-          record_appendix_text = record_appendix.text()
-      except Exception as e:
-          record_appendix_text = "Could not extract text from the uploaded file."
-  else:
-      record_appendix_text = "No record appendix was uploaded."
+continue button field: record_appendix
 ---
 id: impounded record appendix
 question: |
-  Upload your impounded record appendix 
+  Do you have your impounded record appendix?
 subquestion: |
   In addition to information that is automatically impounded or confidential under a law or court rule, such as the names of children or victims of certain crimes or financial statements in a divorce or child support case, any information or document that was impounded in the trial court continues to be impounded in the Appeals Court.  You are responsible for finding out which if any such laws or rules apply in your case. 
   
@@ -402,28 +392,21 @@ subquestion: |
 
   [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
 
-    **Do you have a file to upload?**
+    **You can upload this file on the next screen**
   
-yesno: impounded_record_appendix
----
-code: |
-  if impounded_record_appendix:
-      try:
-          # Extract text from the uploaded file
-          impounded_record_appendix_text = impounded_record_appendix.text()
-      except Exception as e:
-          impounded_record_appendix_text = "Could not extract text from the uploaded file."
-  else:
-      impounded_record_appendix_text = "No impounded record appendix was uploaded."
+continue button field: impounded_record_appendix
 ---
 id: revisit exhibit_attachment
 continue button field: exhibit_attachment.revisit
 question: |
   Edit your supporting exhibits
 subquestion: |
+  You can upload your record appendix and your impounded record appendix here. Upload any files the court needs to see here.
   ${ exhibit_attachment.exhibits.rearrange_exhibits_table }
 
   ${ exhibit_attachment.add_action() }
+
+  If you do not have any files to upload, hit "Next"
 ---
 id: signature_fields
 question: |
@@ -665,4 +648,3 @@ attachment:
   skip undefined: True
   docx template file: appellant_brief.docx
   tagged pdf: True
-  
