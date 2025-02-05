@@ -113,6 +113,9 @@ code: |
   impounded_record_appendix
   if exhibit_attachment.exhibits.has_exhibits:
     exhibit_attachment.exhibits.gather()
+  contents = ""
+  for item in exhibit_attachment.exhibits:
+    contents += str(item)
   set_progress(16)
   trial_court
   decision_date
@@ -337,6 +340,8 @@ id: user role
 question: |
   Are you an appellant or appellee ?
 subquestion: | 
+  this is a test for the exhibit screen
+  ${contents}
   This form is intended for use by an appellant. 
   
   An appellant is a party who is asks a higher court to review the decision of the lower court, regardless of the appellant's party designation (plaintiff, defendant, etc.) in the trial court.  An appellant is a party that has filed a notice of appeal in the trial court.  
