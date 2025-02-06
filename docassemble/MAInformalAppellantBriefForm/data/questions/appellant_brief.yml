@@ -82,9 +82,16 @@ objects:
   - challenged_judgments: DAList.using(target_number=1, there_are_any=True)
   - appeal_facts: DAList.using(target_number=1, there_are_any=True)
   - appeal_arguments: DAList.using(target_number=1, there_are_any=True)
-  - exhibit_attachment: ALExhibitDocument.using(
-          title="Exhibits",
-          filename="exhibits",
+  - record_appendix_document: ALExhibitDocument.using(
+          title="Record Appendix",
+          filename="record_appendix",
+          add_page_numbers=True,
+          include_table_of_contents=True,
+          include_exhibit_cover_pages=True,
+        )
+  - impounded_record_appendix_document: ALExhibitDocument.using(
+          title="Impounded Record Appendix",
+          filename="impounded_record_appendix",
           add_page_numbers=True,
           include_table_of_contents=True,
           include_exhibit_cover_pages=True,
@@ -110,11 +117,16 @@ code: |
   set_parts(subtitle=str(users))
   Information
   record_appendix
-  impounded_record_appendix
-  if exhibit_attachment.exhibits.has_exhibits:
-    exhibit_attachment.exhibits.gather()
+  if record_appendix_document.exhibits.has_exhibits:
+    record_appendix_document.exhibits.gather()
   contents = ""
-  for item in exhibit_attachment.exhibits:
+  for item in record_appendix_document.exhibits:
+    contents += str(item)
+  impounded_record_appendix
+  if impounded_record_appendix_document.exhibits.has_exhibits:
+    impounded_record_appendix_document.exhibits.gather()
+  contents = ""
+  for item in impounded_record_appendix_document.exhibits:
     contents += str(item)
   set_progress(16)
   trial_court
@@ -428,15 +440,27 @@ subquestion: |
   
 continue button field: impounded_record_appendix
 ---
-id: revisit exhibit_attachment
-continue button field: exhibit_attachment.revisit
+id: revisit record_appendix
+continue button field: record_appendix.revisit
 question: |
-  Edit your supporting exhibits
+  Edit your record appendix
 subquestion: |
   You can upload your record appendix and your impounded record appendix here. Do you have any documents that were filed in the lower court that you want to provide to the Appeals Court?
-  ${ exhibit_attachment.exhibits.rearrange_exhibits_table }
+  ${ record_appendix.exhibits.rearrange_exhibits_table }
 
-  ${ exhibit_attachment.add_action() }
+  ${ record_appendix.add_action() }
+
+  If you do not have any files to upload, hit "Next"
+---
+id: revisit impounded_record_appendix
+continue button field: impounded_record_appendix.revisit
+question: |
+  Edit your impounded record appendix
+subquestion: |
+  You can upload your record appendix and your impounded record appendix here. Do you have any documents that were filed in the lower court that you want to provide to the Appeals Court?
+  ${ impounded_record_appendix.exhibits.rearrange_exhibits_table }
+
+  ${ impounded_record_appendix.add_action() }
 
   If you do not have any files to upload, hit "Next"
 ---
@@ -550,27 +574,48 @@ review:
     button: |
       **Write the court decisions you want changed**:
       > ${ single_paragraph(challenged_judgments) }
-  - Edit: exhibit_attachment.exhibits.has_exhibits
+  - Edit: record_appendix_document.exhibits.has_exhibits
     button: |
       **Exhibits attached?**
       
-      % if exhibit_attachment.exhibits.has_exhibits:
+      % if record_appendix_document.exhibits.has_exhibits:
       Yes
-      % elif not exhibit_attachment.exhibits.has_exhibits:
+      % elif not record_appendix_document.exhibits.has_exhibits:
       No
       % endif
   - note: |
       **Supporting exhibits**:
       
-      % if exhibit_attachment.exhibits.there_are_any:
-      ${ exhibit_attachment.exhibits.in_progress_exhibits }
+      % if record_appendix_document.exhibits.there_are_any:
+      ${ record_appendix_document.exhibits.in_progress_exhibits }
       % else:
       You have not attached any exhibits yet
       % endif
 
-      ${ exhibit_attachment.exhibits.add_action() }
+      ${ record_appendix_document.exhibits.add_action() }
     css class: bg-secondary-subtle
-    show if: exhibit_attachment.exhibits.has_exhibits
+    show if: record_appendix_document.exhibits.has_exhibits
+  - Edit: impounded_record_appendix_document.exhibits.has_exhibits
+    button: |
+      **Exhibits attached?**
+      
+      % if impounded_record_appendix_document.exhibits.has_exhibits:
+      Yes
+      % elif not impounded_record_appendix_document.exhibits.has_exhibits:
+      No
+      % endif
+  - note: |
+      **Supporting exhibits**:
+      
+      % if impounded_record_appendix_document.exhibits.there_are_any:
+      ${ impounded_record_appendix_document.exhibits.in_progress_exhibits }
+      % else:
+      You have not attached any exhibits yet
+      % endif
+
+      ${ impounded_record_appendix_document.exhibits.add_action() }
+    css class: bg-secondary-subtle
+    show if: impounded_record_appendix_document.exhibits.has_exhibits
 ---
 continue button field: users.revisit
 question: |
@@ -659,8 +704,8 @@ objects:
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, appellant_brief_attachment, exhibit_attachment], filename="appellant_brief", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, exhibit_attachment],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, appellant_brief_attachment, record_appendix_document, impounded_record_appendix_document], filename="appellant_brief", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document, impounded_record_appendix_document],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
 ---
 # Each attachment defines a key in an ALDocument. We use i as the placeholder here so the same template is 
 # used for "preview" and "final" keys, and logic in the template checks the value of 
