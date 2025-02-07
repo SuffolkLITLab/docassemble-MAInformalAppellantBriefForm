@@ -108,7 +108,7 @@ code: |
   # Set the allowed courts for this interview
   allowed_courts
   nav.set_section("review_appellant_brief")
-  user_role #this could be used conditionally to direct the user to the appellee brief
+  #user_role = 'plaintiff'
   user_ask_role = 'plaintiff'
   users.gather()
   users[0].pronouns
@@ -179,14 +179,14 @@ subquestion: |
   
   You will need to know the following information to complete this interview:
 
-        •	The Appeals Court panel case docket number for your case (has a "P", for example, 2024-P-1234)
-        •	The trial court  your case was decided in
-        •	The names of the plaintiff(s) and defendant(s) in your trial court case, and if they are represented by a lawyer, the lawyer's name and email or business mailing address
-        •	**Recommendations:**
+        - The Appeals Court panel case docket number for your case (has a "P", for example, 2024-P-1234)
+        - The trial court  your case was decided in
+        - The names of the plaintiff(s) and defendant(s) in your trial court case, and if they are represented by a lawyer, the lawyer's name and email or business mailing address
+        -	**Recommendations:**
         First, organize your relevant lower court documents and upload them in this interview to create your record appendix. Second, when preparing your brief's facts, case history, and legal argument, use the pages of the record appendix to reference where the judges can find support for your facts. Third, use the "Sign in or register to save your progress" option available on each page to work on your brief.  
-        •	**Your Brief's Due Date:**
+        -	**Your Brief's Due Date:**
         Check with the Appeals Court for the current due date for your brief.
-        •	If you need more time to finish and file your brief, you can file a motion with the Appeals Court to enlarge the time using the interview at [this website] (https://courtformsonline.org/ma/forms/enlarge-time-to-file-appeals-court)   
+        -	If you need more time to finish and file your brief, you can file a motion with the Appeals Court to enlarge the time using the interview at [this website] (https://courtformsonline.org/ma/forms/enlarge-time-to-file-appeals-court)   
 
   A brief for the Appeals Court is complicated and can take significant time to write and finish. Save your brief in this interview so you can return later and finish it.    
 ---
@@ -420,7 +420,7 @@ subquestion: |
 
   [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
 
-  **You can upload this file on a later screen**
+  **You can upload this file on the next screen**
 
 continue button field: record_appendix
 ---
@@ -446,9 +446,9 @@ question: |
   Edit your record appendix
 subquestion: |
   You can upload your record appendix and your impounded record appendix here. Do you have any documents that were filed in the lower court that you want to provide to the Appeals Court?
-  ${ record_appendix.exhibits.rearrange_exhibits_table }
+  ${ record_appendix_document.exhibits.rearrange_exhibits_table }
 
-  ${ record_appendix.add_action() }
+  ${ record_appendix_document.add_action() }
 
   If you do not have any files to upload, hit "Next"
 ---
@@ -458,9 +458,9 @@ question: |
   Edit your impounded record appendix
 subquestion: |
   You can upload your record appendix and your impounded record appendix here. Do you have any documents that were filed in the lower court that you want to provide to the Appeals Court?
-  ${ impounded_record_appendix.exhibits.rearrange_exhibits_table }
+  ${ impounded_record_appendix_document.exhibits.rearrange_exhibits_table }
 
-  ${ impounded_record_appendix.add_action() }
+  ${ impounded_record_appendix_document.add_action() }
 
   If you do not have any files to upload, hit "Next"
 ---
