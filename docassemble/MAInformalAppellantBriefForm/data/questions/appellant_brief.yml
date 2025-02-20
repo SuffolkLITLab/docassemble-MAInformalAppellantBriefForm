@@ -1,6 +1,7 @@
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALAffidavitOfIndigency:affidavit_body.yml
   - docassemble.MassAccess:massaccess.yml
 ---
 metadata:
@@ -115,6 +116,10 @@ code: |
   users[0].address.address
   users[0].phone_number
   set_parts(subtitle=str(users))
+  indigency_intro
+  fees['Filing fee'].waive = True
+  fees['Filing fee'].amount = 315.00
+  ask_affidavit_questions
   Information
   record_appendix
   if record_appendix_document.exhibits.has_exhibits:
@@ -196,6 +201,15 @@ subquestion: |
   [this website](https://courtformsonline.org/ma/forms/enlarge-time-to-file-appeals-court)   
 
   A brief for the Appeals Court is complicated and can take significant time to write and finish. Save your brief in this interview so you can return later and finish it.    
+---
+id: explain affidavit of indigency
+continue button field: indigency_intro
+question: |
+  Fee waiver questions
+subquestion: |
+  The next questions will be used to find out if you
+  qualify for a fee waiver. The fee to file a Motion to Stay
+  is $315.00.
 ---
 id: Information
 question: |
@@ -386,21 +400,6 @@ fields:
   - "Write a summary of what you want from the court": appeal_conclusion
     input type: area
 ---
-id: Confirmation Page
-question: |
-  Confirmation Page
-subquestion: |
-  Confirm that you will send the following items to the Appeals Court. 
-fields:
-  - "Brief": is_served_informal_brief
-    datatype: yesno
-  - "Record appendix": is_served_record_appendix
-    datatype: yesno
-  - "Impounded appendix (if necessary)": is_served_impounded_appendix
-    datatype: yesno
-    help: |
-      If you are unsure, you can call the Appeals Court at 617-921-4443 or visit [https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
----
 id: record appendix
 question: |
   Do you have your record appendix?
@@ -549,10 +548,6 @@ review:
       % for item in other_parties:
         * ${ item }
       % endfor
-  - Edit: served_informal_brief
-    button: |
-      **Check yes if you are sending this brief (usually yes)**:
-      ${ word(yesno(served_informal_brief)) }
   - Edit: appeal_issues
     button: |
       **Write what you are appealing**:
@@ -561,10 +556,6 @@ review:
     button: |
       **Write a summary of what you want from the court**:
       > ${ single_paragraph(appeal_conclusion) }
-  - Edit: served_record_appendix
-    button: |
-      **Check yes if you are sending the record appendix (usually yes)**:
-      ${ word(yesno(served_record_appendix)) }
   - Edit: filed_date
     button: |
       **Write the date the case was filed in the lower court**:
@@ -573,10 +564,6 @@ review:
     button: |
       **Write all of the facts about your case**:
       > ${ single_paragraph(appeal_facts) }
-  - Edit: served_impounded_appendix
-    button: |
-      **Check yes if you are sending the appendix (usually yes)**:
-      ${ word(yesno(served_impounded_appendix)) }
   - Edit: challenged_judgments
     button: |
       **Write the court decisions you want changed**:
@@ -704,6 +691,9 @@ subquestion: |
 progress: 100
 always include editable files: True
 ---
+code: |
+  affidavitofindigency_attachment.enabled = is_indigent
+---
 # ALDocument objects specify the metadata for each template
 objects:
   - appellant_brief_Post_interview_instructions: ALDocument.using(title="Instructions", filename="appellant_brief_next_steps.docx", enabled=True, has_addendum=False )
@@ -716,8 +706,8 @@ objects:
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, grouped_docs, appellant_brief_attachment, record_appendix_document, impounded_record_appendix_document], filename="appellant_brief", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[grouped_docs, appellant_brief_attachment, record_appendix_document, impounded_record_appendix_document],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, grouped_docs, appellant_brief_attachment, record_appendix_document, impounded_record_appendix_document, affidavitofindigency_attachment], filename="appellant_brief", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[grouped_docs, appellant_brief_attachment, record_appendix_document, impounded_record_appendix_document, affidavitofindigency_attachment],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
 ---
 # Each attachment defines a key in an ALDocument. We use i as the placeholder here so the same template is 
 # used for "preview" and "final" keys, and logic in the template checks the value of 
