@@ -89,13 +89,14 @@ objects:
           add_page_numbers=True,
           include_table_of_contents=True,
           include_exhibit_cover_pages=True,
+          required=True,
         )
-  - impounded_record_appendix_document: ALExhibitDocument.using(
+  - impounded_document: DAFileList.using(
           title="Impounded Record Appendix",
-          filename="impounded_record_appendix",
+          filename="impounded_document",
           add_page_numbers=True,
           include_table_of_contents=True,
-          include_exhibit_cover_pages=True,
+          required=False,
         )
 ---
 sections:
@@ -118,21 +119,16 @@ code: |
   set_parts(subtitle=str(users))
   indigency_intro
   fees['Filing fee'].waive = True
-  fees['Filing fee'].amount = 315.00
+  fees['Filing fee'].amount = 300.00
   ask_affidavit_questions
   Information
   record_appendix
   if record_appendix_document.exhibits.has_exhibits:
     record_appendix_document.exhibits.gather()
-  contents = ""
-  for item in record_appendix_document.exhibits:
-    contents += str(item)
   impounded_record_appendix
-  if impounded_record_appendix_document.exhibits.has_exhibits:
-    impounded_record_appendix_document.exhibits.gather()
-  contents = ""
-  for item in impounded_record_appendix_document.exhibits:
-    contents += str(item)
+  impounded_upload
+  impounded_document
+  uploaded_impounded
   set_progress(16)
   trial_court
   decision_date
@@ -208,8 +204,11 @@ question: |
   Fee waiver questions
 subquestion: |
   The next questions will be used to find out if you
-  qualify for a fee waiver. The fee to file a Motion to Stay
-  is $315.00.
+  qualify for a fee waiver. The fee to file an appeal is **$300.00**.
+
+  Click the link below to see the full schedule of fees.
+  
+  [Appeals court fees](https://www.mass.gov/info-details/appeals-court-fees)
 ---
 id: Information
 question: |
@@ -373,8 +372,6 @@ id: user role
 question: |
   Are you an appellant or appellee ?
 subquestion: | 
-  this is a test for the exhibit screen
-  ${contents}
   This form is intended for use by an appellant. 
   
   An appellant is a party who is asks a higher court to review the decision of the lower court, regardless of the appellant's party designation (plaintiff, defendant, etc.) in the trial court.  An appellant is a party that has filed a notice of appeal in the trial court.  
@@ -408,7 +405,7 @@ subquestion: |
 
   Examples of documents that must be included in the Record Appendix are the trial court docket sheet; the order(s), ruling(s), or judgment(s) that you challenge, including any findings of fact, memorandum of decision, or jury verdict slips; relevant exhibits filed in the lower court or agency; relevant motions, memoranda, pleadings, or other documents filed by the party filing the informal brief or the other party or parties to the case; and the notice(s) of appeal.
 
-  The Record Appendix must have consecutive page numbers, with the cover being page one, and include a table of contents that lists each document by its title and the page where it begins. 
+  The Record Appendix must have consecutive page numbers, with the cover being page one, and include a table of that lists each document by its title and the page where it begins. 
   
   When you complete this interview, this program will have formatted and paginated your documents with a table of contents.
 
@@ -446,39 +443,34 @@ subquestion: |
   
 continue button field: impounded_record_appendix
 ---
-id: revisit record_appendix
-continue button field: record_appendix.revisit
+id: impounded upload
 question: |
-  Edit your record appendix
+  Upload your impounded record appendix. If you do  not have any impounded documents you can move on to the next screen.
 subquestion: |
-  You can upload your record appendix and your impounded record appendix here. Do you have any documents that were filed in the lower court that you want to provide to the Appeals Court?
-  ${ record_appendix_document.exhibits.rearrange_exhibits_table }
-
-  ${ record_appendix_document.add_action() }
-
-  If you do not have any files to upload, hit "Next"
+fields:
+  - Impounded record appendix: impounded_document
+    datatype: files
+    required: False
+continue button field: impounded_upload
 ---
-id: revisit impounded_record_appendix
-continue button field: impounded_record_appendix.revisit
+id: uploaded impounded
 question: |
-  Edit your impounded record appendix
+  Thank you for uploading your document
 subquestion: |
-  You can upload your record appendix and your impounded record appendix here. Do you have any documents that were filed in the lower court that you want to provide to the Appeals Court?
-  ${ impounded_record_appendix_document.exhibits.rearrange_exhibits_table }
-
-  ${ impounded_record_appendix_document.add_action() }
-
-  If you do not have any files to upload, hit "Next"
+  Impounded Record Appendix:
+  ${ impounded_document }
+mandatory: True 
+continue button field: uploaded_impounded
 ---
-id: signature_fields
-question: |
-  Sign your name
-subquestion: |
-  By signing your name, you agree to
-  our terms and conditions.
-signature: target_variable
-under: |
-  ${ user }
+#id: signature fields
+#question: |
+  #Sign your name
+#subquestion: |
+  #By signing your name, you agree to
+  #our terms and conditions.
+#signature: signature_fields
+#under: |
+  #${ user[0].signature }
 ---
 id: Today s Date
 question: |
@@ -589,27 +581,6 @@ review:
       ${ record_appendix_document.exhibits.add_action() }
     css class: bg-secondary-subtle
     show if: record_appendix_document.exhibits.has_exhibits
-  - Edit: impounded_record_appendix_document.exhibits.has_exhibits
-    button: |
-      **Exhibits attached?**
-      
-      % if impounded_record_appendix_document.exhibits.has_exhibits:
-      Yes
-      % elif not impounded_record_appendix_document.exhibits.has_exhibits:
-      No
-      % endif
-  - note: |
-      **Supporting exhibits**:
-      
-      % if impounded_record_appendix_document.exhibits.there_are_any:
-      ${ impounded_record_appendix_document.exhibits.in_progress_exhibits }
-      % else:
-      You have not attached any exhibits yet
-      % endif
-
-      ${ impounded_record_appendix_document.exhibits.add_action() }
-    css class: bg-secondary-subtle
-    show if: impounded_record_appendix_document.exhibits.has_exhibits
 ---
 continue button field: users.revisit
 question: |
@@ -675,18 +646,21 @@ question: |
   All done
 subquestion: |
   Thank you ${users}. Your form is ready to download and deliver.
-  
+
   View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
 
   [eFile my appeal](https://massachusetts.tylertech.cloud/OfsWeb)
 
   ${ action_button_html(url_action('review_appellant_brief'), label='Edit answers', color='info') }
-  
-  
+
+
   ${ al_user_bundle.download_list_html() }
-  
+
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+  
+
+  ${ impounded_document }
 
 progress: 100
 always include editable files: True
@@ -699,15 +673,15 @@ objects:
   - appellant_brief_Post_interview_instructions: ALDocument.using(title="Instructions", filename="appellant_brief_next_steps.docx", enabled=True, has_addendum=False )
   - appellant_brief_attachment: ALDocument.using(title="Appellant brief", filename="appellant_brief", enabled=True, has_addendum=False, )
   - record_appendix_document: ALExhibitDocument.using(title="Record Appendix", filename="record_appendix_document", enabled=True, has_addendum=False, )
-  - impounded_record_appendix_document: ALExhibitDocument.using(title="Impounded Record Appendix", filename="impounded_record_appendix_document", enabled=True, has_addendum=False, )
+  - impounded_document: DAFileList.using(title="Impounded Record Appendix", filename="impounded_document", enabled=True, has_addendum=False, )
 ---
 objects:
-  - grouped_docs: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document, impounded_record_appendix_document], filename="brief_with_appendix", title="Informal brief with appendices", enabled=True)
+  - grouped_docs: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document], filename="informal_brief_with_record_appendix", title="Informal brief with record appendix", enabled=True)
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, grouped_docs, appellant_brief_attachment, record_appendix_document, impounded_record_appendix_document, affidavitofindigency_attachment], filename="appellant_brief", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[grouped_docs, appellant_brief_attachment, record_appendix_document, impounded_record_appendix_document, affidavitofindigency_attachment],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[grouped_docs, appellant_brief_attachment, record_appendix_document, affidavitofindigency_attachment], filename="appellant_brief", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[grouped_docs, appellant_brief_attachment, record_appendix_document, impounded_document, affidavitofindigency_attachment],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
 ---
 # Each attachment defines a key in an ALDocument. We use i as the placeholder here so the same template is 
 # used for "preview" and "final" keys, and logic in the template checks the value of 
@@ -727,3 +701,13 @@ attachment:
   skip undefined: True
   docx template file: appellant_brief.docx
   tagged pdf: True
+---
+attachment:
+  if: impounded_document and len(impounded_document) > 0 and impounded_document[i]['final']
+  name: Impounded Record Appendix
+  filename: ${ impounded_document[i]['final'].filename }
+  variable name: impounded_document[i]['final']
+  skip undefined: True
+  docx template file: impounded_document.docx
+  tagged pdf: True
+
