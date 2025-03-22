@@ -136,6 +136,7 @@ code: |
   impounded_upload
   impounded_document
   uploaded_impounded
+  appendix
 
   nav.set_section('Court information')
   
@@ -567,6 +568,13 @@ subquestion: |
 mandatory: True 
 continue button field: uploaded_impounded
 ---
+id: appendix
+question: |
+  How many volumes does your record appendix have?
+fields: 
+  - "Total volumes": appendix_volume_total
+continue button field: appendix
+---
 id: signature fields
 question: |
   Sign your name
@@ -743,7 +751,6 @@ edit:
   - address.address
   - email
 confirm: True
-
 ---
 id: download appellant_brief
 event: appellant_brief_download
@@ -780,13 +787,10 @@ objects:
   - record_appendix_document: ALExhibitDocument.using(title="Record Appendix", filename="record_appendix_document", enabled=True, has_addendum=False, )
   - impounded_document: DAFileList.using(title="Impounded Record Appendix", filename="impounded_document", enabled=True, has_addendum=False, )
 ---
-objects:
-  - grouped_docs: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document], filename="informal_brief_with_record_appendix", title="Informal brief with record appendix", enabled=True)
----
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[grouped_docs, appellant_brief_attachment, record_appendix_document, affidavitofindigency_attachment,], filename="appellant_brief", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[grouped_docs, appellant_brief_attachment, record_appendix_document, impounded_document, affidavitofindigency_attachment,],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document, affidavitofindigency_attachment], filename="appellant_brief", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document, affidavitofindigency_attachment],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
 ---
 # Each attachment defines a key in an ALDocument. We use i as the placeholder here so the same template is 
 # used for "preview" and "final" keys, and logic in the template checks the value of 
@@ -815,4 +819,15 @@ attachment:
   skip undefined: True
   docx template file: impounded_document.docx
   tagged pdf: True
-
+---
+attachment:
+  variable name: record_appendix_document.table_of_contents
+  docx template file: exhibit_attachment.cover_page.docx
+  field code:
+    exhibits: raw(record_appendix_document.exhibits)
+    include_exhibit_cover_pages: raw(record_appendix_document.include_exhibit_cover_pages)
+---
+generic object: ALExhibit
+attachment:
+  variable name: x.cover_page
+  docx template file: exhibit_cover_sheet.docx
