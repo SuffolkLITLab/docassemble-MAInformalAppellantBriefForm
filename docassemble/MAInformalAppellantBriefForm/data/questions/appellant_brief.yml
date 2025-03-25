@@ -91,12 +91,13 @@ objects:
           include_exhibit_cover_pages=True,
           required=True,
         )
-  - impounded_document: DAFileList.using(
+  - impounded_document: ALExhibitDocument.using(
           title="Impounded Record Appendix",
           filename="impounded_document",
           add_page_numbers=True,
-          include_table_of_contents=True,
-          required=False,
+          inlcude_table_of_contents=True,
+          include_exhibit_cover_pages=True,
+          requried=True,
         )
 ---
 sections:
@@ -133,9 +134,8 @@ code: |
   if record_appendix_document.exhibits.has_exhibits:
     record_appendix_document.exhibits.gather()
   impounded_record_appendix
-  impounded_upload
-  impounded_document
-  uploaded_impounded
+  if impounded_document.exhibits.has_exhibits:
+    impounded_document.exhibits.gather()
   appendix
 
   nav.set_section('Court information')
@@ -249,7 +249,7 @@ code: |
   attorney
   interview_order_appellant_brief
   signature_date
-  impounded_document
+  # impounded_document
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
       persistent=True,
@@ -443,16 +443,11 @@ fields:
 ---
 id: filing_institution
 question: |
-  Are you currently in a federal or state prison?
+  How are you going to file this brief?
 subquestion: |
-  If you are in a federal or state prison, then you will mail the brief. We will attach the document to your brief for you.
-yesno: filing_institution
----
-id: filing_mail
-question: |
-  Are you filing this brief in the **mail**?
-subquestion: | 
-  An original paper copy may be mailed to the Appeals Court, Clerk's Office.
+  - If you are in a federal or state prison, then you will mail the brief.
+
+  - An original paper copy may be **mailed** to the Appeals Court, Clerk's Office.
   
   ######**Appeals Court**
   ######**Clerk's Office**
@@ -460,14 +455,15 @@ subquestion: |
   ######**Boston, MA 02108**
   
   Also, mail a copy to each party's lawyer, if they have a lawyer, or to the party themselves if they do not have a lawyer. You will have to print out a copy of this brief to mail it.
-yesno: filing_mail
----
-id: filing_electronic
-question: |
-  Are you filing this brief **electronically**?
-subquestion: |
+
   - You can file this brief electronically with the Appeals Court by [creating an account](https://massachusetts.tylertech.cloud/OfsWeb) and following the instructions on the website. Instructions are provided there on how to serve a copy by email to the other party or their lawyer if they have a lawyer.  
-yesno: filing_electronic
+fields:
+  - "Are you in federal or state prison?": filing_institution
+    datatype: yesnoradio
+  - "Are you filing this brief in the mail?": filing_mail
+    datatype: yesnoradio
+  - "Are you filing this brief electronically?": filing_electronic
+    datatype: yesnoradio
 ---
 id: certificate_of_service
 question: |
@@ -549,24 +545,24 @@ subquestion: |
   
 continue button field: impounded_record_appendix
 ---
-id: impounded upload
-question: |
-  Upload your impounded record appendix. If you do  not have any impounded documents you can move on to the next screen.
-subquestion: |
-fields:
-  - Impounded record appendix: impounded_document
-    datatype: files
-    required: False
-continue button field: impounded_upload
+#id: impounded upload
+#question: |
+  #Upload your impounded record appendix. If you do  not have any impounded documents you can move on to the next screen.
+#subquestion: |
+#fields:
+  #- Impounded record appendix: impounded_document
+    #datatype: files
+    #required: False
+#continue button field: impounded_upload
 ---
-id: uploaded impounded
-question: |
-  Thank you for uploading your document
-subquestion: |
-  Impounded Record Appendix:
-  ${ impounded_document }
-mandatory: True 
-continue button field: uploaded_impounded
+#id: uploaded impounded
+#question: |
+  #Thank you for uploading your document
+#subquestion: |
+  #Impounded Record Appendix:
+  #${ impounded_document }
+#mandatory: True 
+#continue button field: uploaded_impounded
 ---
 id: appendix
 question: |
@@ -772,7 +768,7 @@ subquestion: |
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
   
 
-  ${ impounded_document }
+#  ${ impounded_document }
 
 progress: 100
 always include editable files: True
@@ -785,12 +781,12 @@ objects:
   - appellant_brief_Post_interview_instructions: ALDocument.using(title="Instructions", filename="appellant_brief_next_steps.docx", enabled=True, has_addendum=False )
   - appellant_brief_attachment: ALDocument.using(title="Appellant brief", filename="appellant_brief", enabled=True, has_addendum=False, )
   - record_appendix_document: ALExhibitDocument.using(title="Record Appendix", filename="record_appendix_document", enabled=True, has_addendum=False, )
-  - impounded_document: DAFileList.using(title="Impounded Record Appendix", filename="impounded_document", enabled=True, has_addendum=False, )
+  #- impounded_document: DAFileList.using(title="Impounded Record Appendix", filename="impounded_document", enabled=True, has_addendum=False, )
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document, affidavitofindigency_attachment], filename="appellant_brief", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document, affidavitofindigency_attachment],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document, impounded_document, affidavitofindigency_attachment], filename="appellant_brief", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document, impounded_document, affidavitofindigency_attachment],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
 ---
 # Each attachment defines a key in an ALDocument. We use i as the placeholder here so the same template is 
 # used for "preview" and "final" keys, and logic in the template checks the value of 
@@ -811,14 +807,14 @@ attachment:
   docx template file: appellant_brief.docx
   tagged pdf: True
 ---
-attachment:
-  if: impounded_document and len(impounded_document) > 0 and impounded_document[i]
-  name: Impounded Record Appendix
-  filename: ${ impounded_document[i] }
-  variable name: impounded_document_attachment[i]
-  skip undefined: True
-  docx template file: impounded_document.docx
-  tagged pdf: True
+#attachment:
+  #if: impounded_document and len(impounded_document) > 0 and impounded_document[i]
+  #name: Impounded Record Appendix
+  #filename: ${ impounded_document[i] }
+  #variable name: impounded_document_attachment[i]
+  #skip undefined: True
+  #docx template file: impounded_document.docx
+  #tagged pdf: True
 ---
 attachment:
   variable name: record_appendix_document.table_of_contents
@@ -826,6 +822,18 @@ attachment:
   field code:
     exhibits: raw(record_appendix_document.exhibits)
     include_exhibit_cover_pages: raw(record_appendix_document.include_exhibit_cover_pages)
+---
+generic object: ALExhibit
+attachment:
+  variable name: x.cover_page
+  docx template file: exhibit_cover_sheet.docx
+---
+attachment:
+  variable name: impounded_document.table_of_contents
+  docx template file: impounded_exhibit_attachment.cover_page.docx
+  field code:
+    exhibits: raw(impounded_document.exhibits)
+    include_exhibit_cover_pages: raw(impounded_document.include_exhibit_cover_pages)
 ---
 generic object: ALExhibit
 attachment:
