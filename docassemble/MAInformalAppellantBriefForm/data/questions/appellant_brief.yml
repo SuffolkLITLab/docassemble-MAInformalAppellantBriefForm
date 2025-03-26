@@ -72,7 +72,7 @@ code: |
   github_repo_name =  'docassemble-AppellantBrief'
 ---
 code: |
-  interview_short_title = "Get an informal brief - appellant"
+  interview_short_title = "Create an informal brief - appellant"
 ---
 code: |
   al_form_type = "appeal" 
@@ -111,11 +111,10 @@ code: |
   # Set the allowed courts for this interview
 
   nav.set_section('Introduction')
-  
+  Information
   allowed_courts
   
   nav.set_section("User information")
-
   set_progress(10)
   #user_role = 'plaintiff'
   user_ask_role = 'plaintiff'
@@ -124,11 +123,8 @@ code: |
   users[0].address.address
   users[0].phone_number
   set_parts(subtitle=str(users))
-  
-  Information
 
   nav.set_section('Record appendix upload')
-
   set_progress(20)
   record_appendix
   if record_appendix_document.exhibits.has_exhibits:
@@ -139,13 +135,11 @@ code: |
   appendix
 
   nav.set_section('Court information')
-  
   set_progress(30)
   trial_court
   decision_date
 
   nav.set_section('Writing your informal brief')
-
   set_progress(32)
   docket_number
   appeal_issues
@@ -155,18 +149,17 @@ code: |
   appeal_arguments
   set_progress(55)
   appeal_conclusion
-  support
+  users[0].signature
   users[0].signature_date
+  support
   
   nav.set_section('Other parties')
-  
   set_progress(65)
   other_parties[0].address.address
   other_parties[0].email
   set_progress(75)
 
   nav.set_section ('Certificate of service')
-
   set_progress(80)
   certificate_of_service
   filing_institution
@@ -174,7 +167,6 @@ code: |
   filing_mail
   
   nav.set_section('affidavit of indigency')
-
   set_progress(90)
   indigency_intro
   fees['Filing fee'].waive = True
@@ -229,7 +221,7 @@ question: |
 subquestion: |
   This interview helps you write an informal brief for the Massachusetts Appeals Court.
 
-  This program simplifies filing procedures for self-represented (“pro se”) parties, promoting fair and efficient resolution of appeals that otherwise might be delayed or dismissed. Please make sure you have all of the documents you need before you get started.
+  This program simplifies filing procedures for self-represented (“pro se”) parties, promoting fair and efficient resolution of appeals that otherwise might be delayed or dismissed. Make sure you have all of the documents you need before you get started.
 
   If you think you need more time you can file this [Motion for Enlargement of Time to File a Brief](https://apps.suffolklitlab.org/run/appeal_enlarge_time/#/1)
 
@@ -265,13 +257,20 @@ continue button field: appellant_brief_intro
 question: |
   Appellant informal brief
 subquestion: |
-  This interview will help you write an informal brief for filing with the Appeals Court. Check the Appeals Court's website for more information about the informal brief pilot program.
+  The Appeals Court permits only self-represented parties (no lawyer) to file an informal brief. This interview will help you write an informal brief for filing with the Appeals Court. Check the Appeals Court's website for more information about the informal brief pilot program.
   
   You will need to know the following information to complete this interview:
 
-    - The Appeals Court panel case docket number for your case (has a "P", for example, **2024-P-1234**)
-    - The trial court  your case was decided in
-    - The names of the plaintiff(s) and defendant(s) in your trial court case, and if they are represented by a lawyer, the lawyer's name and email or business mailing address
+    * The **Appeals Court** panel case docket number for your case (has a "P", for example, **2024-P-1234**).
+    * The **trial court**  your case was decided in.
+    * The names of the plaintiff(s) and defendant(s) in your trial court case, and if they are represented by a lawyer, the lawyer's name and email or business mailing address
+
+  Your Brief's Due Date:
+  
+    * Check with the Appeals Court for the current due date for your brief. 
+    * If you need more time to finish and file your brief, you can file a motion with the Appeals Court to enlarge the time using the interview [here](https://courtformsonline.org/ma/forms/enlarge-time-to-file-appeals-court). 
+
+    **A brief for the Appeals Court is complicated and can take significant time to write and finish. Save your brief in this interview so you can return later and finish it.**
 ---
 id: support
 continue button field: support
@@ -285,16 +284,16 @@ continue button field: recommendations
 question: |
   Recommendations
 subquestion: |
-    - **First**, organize your relevant lower court documents and upload them in this interview to create your record appendix.
+    - **First**, organize your relevant trial court documents and upload them in this interview to create your record appendix and impounded record appendix.
     
-    - **Second**, when preparing your brief's facts, case history, and legal argument, use the pages of the record appendix to reference where the judges can find support for your facts. 
+    - **Second**, when preparing your brief's facts, case history, and legal argument, use the pages of the record appendices to reference where the judges can find support for your facts. 
     
     - **Third**, use the "Sign in or register to save your progress" option available on each page to work on your brief.  
 ---
 id: Due date
 continue button field: due_date
 question: |  
-  Your Brief's Due Date
+  Your brief's due date
 subquestion: |
     - Check with the Appeals Court for the current due date for your brief.  
 
@@ -332,11 +331,11 @@ continue button field: Information
 ---
 id: Lower Court Information
 question: |
-  Lower Court Information
+  Trial court information
 fields:
-  - "The case was filed in the lower court on": filed_date
+  - "The case was filed in the trial court on": filed_date
     datatype: date  
-  - "The lower court decided my case on": decision_date
+  - "The trial court decided my case on": decision_date
     datatype: date
   - "The name(s) of the judge or judges who ruled on my case was Judge": judge_name
     input type: text
@@ -344,6 +343,8 @@ fields:
 ---
 id: users[0].pronouns
 question: |
+  What are your pronouns?
+subquestion: |
   If you would like to include your pronouns on the filing, state your pronouns here, or leave it blank.
 fields: 
   - "My pronouns are": users[0].pronouns
@@ -356,8 +357,8 @@ question: |
 subquestion: |
  List the issue or issues you are raising in this appeal, which are the errors you claim were made in the trial court, and which you will discuss in your argument section.  Organize and separate each issue by different numbers. For example: 
  
- #####1. The judge incorrectly denied the defendant's motion to dismiss the plaintiff's complaint.  
- #####2. The judge incorrectly allowed the plaintiff's motion for summary judgment. 
+ **1. The judge incorrectly denied the defendant's motion to dismiss the plaintiff's complaint.  
+ 2. The judge incorrectly allowed the plaintiff's motion for summary judgment.** 
  
  It is your obligation to find out if any information in your case is impounded or confidential; for more information, please go to section (c) (4) of the [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program). 
 fields:
@@ -366,7 +367,6 @@ fields:
     help: |
       An appeal is not a "do-over." An appeal is a review of a particular application of the law. You must appeal a specific legal error that you believe the trial court made. Errors can include the following:
 
-      
       **Mistake of law**: This occurs when the judge made a mistake about the law or how to apply the law.
 
       
@@ -378,13 +378,13 @@ fields:
 ---
 id: Challenged judgments
 question: |
-  What order(s), decision(s), and judgement(s) are you challenging?
+  What order(s), decision(s), and judgment(s) of the trial court are you challenging?
 subquestion: |
   Explain the history of this case. Identify:
   
-  - When this case began in the trial court or agency,
-  - Each order or decision that you are challenging as incorrect, and
-  - The date when each notice of appeal was filed  
+  * When this case began in the trial court or agency,
+  * Each order or decision that you are challenging as incorrect, and
+  * The date when each notice of appeal was filed.  
   
   Include references to the page(s) in the **record appendix** where each order or decision and each notice of appeal are located.
 
@@ -396,19 +396,20 @@ fields:
   - "Write the court decisions you want changed": challenged_judgments
     input type: area
     help: |
-      List specific decisions that the judge made. This does not have to necessarily be the final result of the case. You could say, '1. The judge's decision to allow _________ as evidence.'
+      List specific decisions that the judge made. This does not have to necessarily be the final result of the case. You could say, 'The judge's decision to allow _________ as evidence.'
 ---
 id: Facts
 question: |
   Facts
 subquestion: |
-   This is an important section of your brief. Describe all the facts that are related to the issues you are appealing.  Each statement of fact must be followed by a reference to the specific page or pages in the record appendix or transcript(s) where that fact is found (Examples – "Apx at 25"; "Transcript 10/15/22 at pg 55"; "Exhibit #2 at pg 95").  
+   This is an important section of your brief. Describe all the facts that are related to the issues you are appealing.  Each statement of fact must be followed by a reference to the specific page or pages in the record appendix or transcript(s) where that fact is found **(Examples – "Apx at 25"; "Transcript 10/15/22 at pg 55"; "Exhibit #2 at pg 95")**.  
    
-   - You may not include facts that were not brought to the attention of the trial judge or agency, and you must refer to specific page(s) of that document unless the document or exhibit is a single page.  
-   
-   - Do not refer to any party or individual by name if their identity has been **impounded** by statute, court rule, or court order.  See Section (c) (4) of the [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program) for more information about impoundment and confidentiality.
+   You may not include facts that were not brought to the attention of the trial judge or agency, and you must refer to specific page(s) of that document unless the document or exhibit is a single page. 
 
-   #####It is important to explain the facts with citations to the record appendix so that the Appeals Court knows what happened in the lower court.    
+   If you do not explain the facts with citations to the record appendices, the Appeals Court may not be able to identify what happened in the lower court. A complete description of the facts can take several pages to complete depending on the case.
+   
+   Do not refer to any party or individual by name if their identity has been **impounded** by statute, court rule, or court order. See Section (c) (4) of the [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program) for more information about impoundment and confidentiality.
+  
 fields:
   - "Facts:": appeal_facts
     input type: area
@@ -419,11 +420,11 @@ question: |
 subquestion: |
   The legal argument is an important section of your brief. Present your reasons why the trial court or agency was wrong as a matter of law or fact, and why the Appeals Court should rule in your favor.  
   
-  - Your argument must be supported with citations to legal authorities such as case decisions (preferably from Massachusetts), statutes, regulations, court rules, constitutional provisions, or other authorities.  
+  Your argument must be supported with citations to legal authorities such as case decisions (preferably from Massachusetts), statutes, regulations, court rules, constitutional provisions, or other authorities.  
   
-  - When discussing facts again in this section, you must reference to the specific page or pages in your **record appendix** or **transcript(s)** where support for that fact can be found.
+  When discussing facts again in this section, you must reference to the specific page or pages in your record appendix or transcript(s) where support for that fact can be found. For guidance on how to cite legal sources in Massachusetts, reference this [guide](https://www.mass.gov/info-details/massachusetts-legal-writing-and-citations).
 
-  #####It is important to explain your legal argument and support it with citations to governing legal sources so that the Appeals Court understands your argument.  
+  **It is important to explain your legal argument and support it with citations to governing legal sources so that the Appeals Court understands your argument.**  
 
   [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
 fields:
@@ -445,18 +446,16 @@ id: filing_institution
 question: |
   How are you going to file this brief?
 subquestion: |
-  - If you are in a federal or state prison, then you will mail the brief.
+  * If you are in a federal or state prison, then you will mail the brief.
 
-  - An original paper copy may be **mailed** to the Appeals Court, Clerk's Office.
+  * An original paper copy may be **mailed** to the Appeals Court, Clerk's Office. Also, mail a copy to each party's lawyer, if they have a lawyer, or to the party themselves if they do not have a lawyer. You will have to print out a copy of this brief to mail it.
   
-  ######**Appeals Court**
-  ######**Clerk's Office**
-  ######**1 Pemberton Square, Room 1200**
-  ######**Boston, MA 02108**
-  
-  Also, mail a copy to each party's lawyer, if they have a lawyer, or to the party themselves if they do not have a lawyer. You will have to print out a copy of this brief to mail it.
+      ######**Appeals Court**
+      ######**Clerk's Office**
+      ######**1 Pemberton Square, Room 1200**
+      ######**Boston, MA 02108**
 
-  - You can file this brief electronically with the Appeals Court by [creating an account](https://massachusetts.tylertech.cloud/OfsWeb) and following the instructions on the website. Instructions are provided there on how to serve a copy by email to the other party or their lawyer if they have a lawyer.  
+  * You can file this brief electronically with the Appeals Court by [creating an account](https://massachusetts.tylertech.cloud/OfsWeb) and following the instructions on the website. Instructions are provided there on how to serve a copy by email to the other party or their lawyer if they have a lawyer.  
 fields:
   - "Are you in federal or state prison?": filing_institution
     datatype: yesnoradio
@@ -471,7 +470,9 @@ question: |
 subquestion: |
   All papers filed in the Appeals Court must be sent to all other parties to the case, or their attorney(s), and filed along with a Certificate of Service stating that you completed this step.  This is called "service," and can be done by email or regular mail.  
   
-  If the Certificate of Service is not completed, this filing will not be accepted.  If you do not serve the other party or parties before filing documents in the Appeals Court, the filing may be struck and, if you are an appellant, the appeal may be dismissed.
+  **If the Certificate of Service is not completed, this filing will not be accepted.  If you do not serve the other party or parties before filing documents in the Appeals Court, the filing may be struck and, as an appellant, the appeal may be dismissed.**
+
+  The Certificate of Service will be automatically attached to your downloadable brief.
 continue button field: certificate_of_service
 ---
 id: user role
@@ -507,7 +508,7 @@ id: record appendix
 question: |
   Do you have your record appendix?
 subquestion: |
-  If you are the appealing party, your informal brief must be accompanied by a separate document called the **Record Appendix**. The Record Appendix contains copies of all the documents filed in or created by the lower court or agency that are not impounded **and are relevant to the Appeals Court's review of the issues raised on appeal, including copies of all documents you have referenced in your informal brief.** A Record Appendix template is provided as part of this pilot program. Please note that there is a special procedure for filing impounded information that is described below and in section (d) (4) of the Informal Brief Guidance.
+  As the appealing party, your informal brief must be accompanied by a separate document called the **Record Appendix**. The Record Appendix contains copies of all the documents filed in or created by the lower court or agency that are not impounded **and are relevant to the Appeals Court's review of the issues raised on appeal, including copies of all documents you have referenced in your informal brief.** There is a special procedure for filing impounded information that is described later in the interview and in section (d) (4) of the Informal Brief Guidance.
 
   Examples of documents that must be included in the Record Appendix are the trial court docket sheet; the order(s), ruling(s), or judgment(s) that you challenge, including any findings of fact, memorandum of decision, or jury verdict slips; relevant exhibits filed in the lower court or agency; relevant motions, memoranda, pleadings, or other documents filed by the party filing the informal brief or the other party or parties to the case; and the notice(s) of appeal.
   
@@ -519,13 +520,13 @@ subquestion: |
   
   **The Appeals Court may decline to consider arguments in an informal brief that are not supported by evidence in the Record Appendix or transcript(s).**
 
-  Please note that only materials that were presented to the lower court or agency may be included in the Record Appendix. If you wish to include materials that were not presented to the lower court or agency, you must file a motion in the Appeals Court seeking permission to do so. (Such motions are usually denied because the Appeals Court reviews the judge's decision based only on the information that was before the judge.)
+  Note that only materials that were presented to the lower court or agency may be included in the Record Appendix. If you wish to include materials that were not presented to the lower court or agency, you must file a motion in the Appeals Court seeking permission to do so. Such motions are usually denied because the Appeals Court reviews the judge's decision based only on the information that was before the judge.
 
   The appellee (party responding to an appeal) can also file a Record Appendix with the appellee brief. If they do, the appellee's Record Appendix will be called the "supplemental appendix." You may file a reply brief in response to the appellee brief and supplemental appendix, but you may not file another appendix.
 
   [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
 
-  **You must file a record appendix on the next screen**
+  **You must file a record appendix on the next screen.**
 
 continue button field: record_appendix
 ---
@@ -533,15 +534,15 @@ id: impounded record appendix
 question: |
   Do you have your impounded record appendix?
 subquestion: |
-  In addition to information that is automatically impounded or confidential under a law or court rule, such as the names of children or victims of certain crimes or financial statements in a divorce or child support case, any information or document that was impounded in the trial court continues to be impounded in the Appeals Court.  You are responsible for finding out which if any such laws or rules apply in your case. 
+  In addition to information that is automatically impounded or confidential under a law or court rule, such as the names of children or victims of certain crimes or financial statements in a divorce or child support case, any information or document that was impounded in the trial court continues to be impounded in the Appeals Court. You are responsible for finding out which if any such laws or rules apply in your case. 
   
-  Documents containing impounded information must be filed in a separate record appendix volume whose cover states it "Contains Impounded Material."  Like your regular record appendix, this impounded volume of appendix must have consecutive page numbers, with the cover page being page one, and must have a table of contents listing each document along with the page where it begins.  A template is provided as part of this pilot program.
+  **Documents containing impounded information must be filed in a separate record appendix volume whose cover states it "Contains Impounded Material."**
   
   Documents that are not impounded but appear in an appendix and contain confidential or personal identifying information (PII) must be "redacted," which means the confidential information and PII is blacked out so it cannot be seen.  Examples of PII are Social Security numbers, taxpayer identification numbers, driver's license numbers, State-issued ID card numbers, passport numbers, financial account numbers, and credit or debit card numbers.
 
   [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
 
-    **You can upload this file on the next screen**
+    **You can upload documents on the next screen**
   
 continue button field: impounded_record_appendix
 ---
@@ -671,7 +672,7 @@ review:
       > ${ single_paragraph(challenged_judgments) }
   - Edit: record_appendix_document.exhibits.has_exhibits
     button: |
-      **Exhibits attached?**
+      **Documents from the trial court case attached?**
       
       % if record_appendix_document.exhibits.has_exhibits:
       Yes
@@ -723,7 +724,6 @@ edit:
   - phone_number
   - email
 confirm: True
-
 ---
 continue button field: other_parties.revisit
 question: |
