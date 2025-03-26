@@ -785,7 +785,7 @@ objects:
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document, impounded_document, affidavitofindigency_attachment], filename="appellant_brief", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, appellant_brief_attachment, record_appendix_document, impounded_document, affidavitofindigency_attachment], filename="appellant_brief", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document, impounded_document, affidavitofindigency_attachment],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
 ---
 # Each attachment defines a key in an ALDocument. We use i as the placeholder here so the same template is 
