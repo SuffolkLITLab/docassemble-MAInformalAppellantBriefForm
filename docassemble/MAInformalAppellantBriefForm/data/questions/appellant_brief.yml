@@ -158,6 +158,7 @@ code: |
   set_progress(55)
   appeal_conclusion
   support
+  users[0].signature
   users[0].signature_date
   
   nav.set_section('Other parties')
@@ -581,7 +582,7 @@ question: |
 subquestion: |
   By signing your name, you agree to
   our terms and conditions.
-signature: signature_fields
+signature: user[0].signature
 under: |
   ${ user[0].signature }
 ---
