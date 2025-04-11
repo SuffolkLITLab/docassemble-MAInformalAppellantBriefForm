@@ -164,7 +164,7 @@ code: |
   nav.set_section('Other parties')
   
   set_progress(65)
-  other_parties[0].address.address
+  other_parties[0].address.on_one_line
   other_parties[0].email
   set_progress(75)
 
@@ -722,7 +722,7 @@ columns:
 edit:
   - signature
   - pronouns
-  - address.address
+  - address.on_one_line
   - signature_date
   - name.first
   - phone_number
@@ -749,7 +749,7 @@ columns:
       row_item.email if defined("row_item.email") else ""
 edit:
   - name.first
-  - address.address
+  - address.on_one_line
   - email
 confirm: True
 ---
