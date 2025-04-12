@@ -121,7 +121,10 @@ code: |
   user_ask_role = 'plaintiff'
   users.gather()
   users[0].pronouns
-  users[0].address.on_one_line
+  users[0].address.address
+  users[0].address.city
+  users[0].address.state
+  users[0].address.zip
   users[0].phone_number
   set_parts(subtitle=str(users))
   
@@ -164,7 +167,10 @@ code: |
   nav.set_section('Other parties')
   
   set_progress(65)
-  other_parties[0].address.on_one_line
+  other_parties[0].address.address
+  other_parties[0].address.city
+  other_parties[0].address.state
+  other_parties[0].address.zip
   other_parties[0].email
   set_progress(75)
 
@@ -722,7 +728,7 @@ columns:
 edit:
   - signature
   - pronouns
-  - address.on_one_line
+  - address.one_line
   - signature_date
   - name.first
   - phone_number
@@ -749,7 +755,7 @@ columns:
       row_item.email if defined("row_item.email") else ""
 edit:
   - name.first
-  - address.on_one_line
+  - address.one_line
   - email
 confirm: True
 ---
