@@ -72,7 +72,7 @@ code: |
   github_repo_name =  'docassemble-AppellantBrief'
 ---
 code: |
-  interview_short_title = "Get an informal brief - appellant"
+  interview_short_title = "Create an informal appellant brief using CourtFormsOnline"
 ---
 code: |
   al_form_type = "appeal" 
@@ -336,9 +336,7 @@ question: |
 subquestion: |
   You can use this form to prepare and file an informal brief if you are appealing a court’s decision to the Massachusetts Appeals Court and have opened a case on the court's panel docket.
 
-  Click "Help" to access a checklist for filing an appeal
-help: |
-    - [Checklist](https://www.mass.gov/doc/sample-informal-brief-rejection-checklist/download)
+  Click this link to access a checklist for filing an appeal. [Checklist](https://www.mass.gov/doc/sample-informal-brief-rejection-checklist/download)
 continue button field: Information
 ---
 id: Lower Court Information
@@ -363,9 +361,9 @@ fields:
 ---
 id: Your Appeal
 question: |
-  Your issue(s) on appeal
+  Your issue(s) or claims of error on appeal 
 subquestion: |
- List the issue or issues you are raising in this appeal, which are the errors you claim were made in the trial court, and which you will discuss in your argument section.  Organize and separate each issue by different numbers. For example: 
+ List the issues or claims of error you are raising in this appeal, which are the errors you claim were made in the trial court, and which you will discuss in your argument section.  Organize and separate each issue by different numbers. For example: 
  
  #####1. The judge incorrectly denied the defendant's motion to dismiss the plaintiff's complaint.  
  #####2. The judge incorrectly allowed the plaintiff's motion for summary judgment. 
@@ -411,7 +409,7 @@ fields:
 ---
 id: Facts
 question: |
-  Facts
+  Statement of the Facts
 subquestion: |
    This is an important section of your brief. Describe all the facts that are related to the issues you are appealing.  Each statement of fact must be followed by a reference to the specific page or pages in the record appendix or transcript(s) where that fact is found (Examples – "Apx at 25"; "Transcript 10/15/22 at pg 55"; "Exhibit #2 at pg 95").  
    
@@ -421,7 +419,7 @@ subquestion: |
 
    #####It is important to explain the facts with citations to the record appendix so that the Appeals Court knows what happened in the lower court.    
 fields:
-  - "Facts:": appeal_facts
+  - "Statement of the Facts:": appeal_facts
     input type: area
 ---
 id: Argument
@@ -505,13 +503,13 @@ fields:
 ---
 id: Conclusion
 question: |
-  Conclusion
+  Conclusion/Relief Requested
 subquestion: |
-  Write a statement of what you are asking the Appeals Court to do (for example, order a new trial, enter judgment for you, modify the trial court judgment, etc.) 
+  Write a statement of what relief or outcome you are asking the Appeals Court to order (for example, order a new trial, enter judgment for you, modify the trial court judgment, etc.)
 
   [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
 fields:
-  - "Write a summary of what you want from the court": appeal_conclusion
+  - "Write your conclusion/relief requested": appeal_conclusion
     input type: area
 ---
 id: record appendix
