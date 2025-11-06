@@ -93,7 +93,7 @@ objects:
         )
   - impounded_document: ALExhibitDocument.using(
           title="Impounded Record Appendix",
-          filename="impounded_document",
+          filename="impounded_record_appendix_document",
           add_page_numbers=True,
           inlcude_table_of_contents=True,
           include_exhibit_cover_pages=True,
@@ -726,7 +726,10 @@ columns:
 edit:
   - signature
   - pronouns
-  - address.one_line
+  - address.address
+  - address.city
+  - address.state
+  - address.zip
   - signature_date
   - name.first
   - phone_number
@@ -753,7 +756,10 @@ columns:
       row_item.email if defined("row_item.email") else ""
 edit:
   - name.first
-  - address.one_line
+  - address.address
+  - address.city
+  - address.state
+  - address.zip
   - email
 confirm: True
 ---
@@ -855,7 +861,11 @@ id: any exhibits
 question: |
   This is where you will upload your documents. 
 subquestion: |
-  Remember that you **must** upload a record appendix. **Impounded** documents are only required if you have impounded material.
+  % if x.object_name() == 'record_appendix_document.exhibits':
+  Remember that you **must** upload a record appendix (non-impounded documents).
+  % elif x.object_name() == 'impounded_document.exhibits':
+  Do you have any **impounded** documents that you want to provide to the court? Upload them here if you have impounded material.
+  % endif
 fields:
   #- Do you have a document to upload on this screen?: x.has_exhibits
     #datatype: yesnoradio

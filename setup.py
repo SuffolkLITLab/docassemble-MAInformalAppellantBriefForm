@@ -44,17 +44,16 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.MAInformalAppellantBriefForm',
-      version='1.0',
+      version='1.2',
       description=('Massachusetts informal appellant brief form'),
       long_description='# docassemble.InformalAppellantBriefForm\r\n\r\nInformal appellant brief form\r\n\r\n## Author\r\n\r\n \r\n\r\n',
       long_description_content_type='text/markdown',
       author='Jack Brandt',
       author_email='john.brandt@su.suffolk.edu',
-      license='The MIT License',
+      license='MIT',
       url='https://suffolklitlab.org',
       packages=find_namespace_packages(),
-      install_requires=['docassemble.AssemblyLine>=3.2.0'],
+      install_requires=['docassemble.AssemblyLine @ git+https://github.com/SuffolkLITLab/docassemble-AssemblyLine.git@main'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MAInformalAppellantBriefForm/', package='docassemble.MAInformalAppellantBriefForm'),
      )
-
