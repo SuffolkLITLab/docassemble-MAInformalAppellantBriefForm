@@ -1,8 +1,3 @@
-license = "MIT"
-license-files = [
-    "LICENSE",
-]
-
 [build-system]
 requires = [
     "setuptools==80.9.0",
@@ -11,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "docassemble.MAInformalAppellantBriefForm"
-version = "1.2"
+version = "1.2.1"
 description = "Massachusetts informal appellant brief form"
 readme = "README.md"
 authors = [

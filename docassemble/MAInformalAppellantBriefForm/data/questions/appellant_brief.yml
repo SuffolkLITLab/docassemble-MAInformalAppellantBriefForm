@@ -867,7 +867,7 @@ subquestion: |
   Do you have any **impounded** documents that you want to provide to the court? Upload them here if you have impounded material.
   % endif
 fields:
-  #- Do you have a document to upload on this screen?: x.has_exhibits
+  - Do you have a document to upload on this screen?: x.has_exhibits
     #datatype: yesnoradio
   - note: |
       You will have a chance to upload multiple documents. 
