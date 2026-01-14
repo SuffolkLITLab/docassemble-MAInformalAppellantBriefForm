@@ -246,7 +246,7 @@ subquestion: |
 
   If you think you need more time you can file this [Motion for Enlargement of Time to File a Brief](https://apps.suffolklitlab.org/run/appeal_enlarge_time/#/1)
 
-  Good luck!
+  We Hope you find this interview helpful. 
 field: sees_nav_bar
 ---
 ###################### Main order ######################
@@ -544,7 +544,7 @@ id: record appendix upload question
 question: |
   Do you have a record appendix to upload?
 subquestion: |
-  If you have a record appendix that needs to be filed with the court, you can upload it on the next screen.
+  If you have a record appendix that needs to be filed with the court, you can upload it on the next screen. 
 fields:
   - Do you have a record appendix to upload?: record_appendix_document.exhibits.has_exhibits
     datatype: yesnoradio
