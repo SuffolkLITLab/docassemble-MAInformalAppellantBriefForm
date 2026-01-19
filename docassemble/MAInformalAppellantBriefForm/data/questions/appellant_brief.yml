@@ -140,6 +140,7 @@ code: |
     record_appendix_document.exhibits.gather()
     appendix
   
+  
   impounded_record_appendix
   impounded_upload_question
   if impounded_document.exhibits.has_exhibits:
@@ -246,7 +247,7 @@ subquestion: |
 
   If you think you need more time you can file this [Motion for Enlargement of Time to File a Brief](https://apps.suffolklitlab.org/run/appeal_enlarge_time/#/1)
 
-  Good luck!
+  We hope you find this interview helpful. 
 field: sees_nav_bar
 ---
 ###################### Main order ######################
@@ -361,6 +362,33 @@ fields:
     input type: text
     required: False
 ---
+if: |
+  # this should only be reached if the user's address is out of state
+  not len(all_matches) and all_courts.filter_courts(allowed_courts) 
+sets:
+  - trial_court
+id: choose a court (no matching courts found)
+question: |
+  % if al_form_type == 'starts_case':
+  What court do you want to file in?
+  % elif al_form_type == 'appeal':
+  What is the name of the trial court your case was originally filed in?
+  % else:
+  What court is your case in?
+  % endif
+subquestion: |
+  % if not al_form_type == 'starts_case':
+  Look at your court paperwork. Match the name listed
+  there with the same court in the following. 
+  % endif
+  
+  ${ collapse_template(how_to_pick_court_help_template) }
+fields:
+  - no label: trial_court
+    datatype: object
+    object labeler: court_short_label
+    choices: all_courts.filter_courts(allowed_courts) 
+---
 id: Your Appeal
 question: |
   Your issue(s) or claims of error on appeal 
@@ -371,6 +399,8 @@ subquestion: |
  #####2. The judge incorrectly allowed the plaintiff's motion for summary judgment. 
  
  It is your obligation to find out if any information in your case is impounded or confidential; for more information, please go to section (c) (4) of the [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program). 
+
+ Finally, please note that if you copy and paste text into any of the following text fields, you will need to review and correct any format issues, such as broken sentences or lines of text.
 fields:
   - "Appeal": appeal_issues
     input type: area
@@ -544,7 +574,7 @@ id: record appendix upload question
 question: |
   Do you have a record appendix to upload?
 subquestion: |
-  If you have a record appendix that needs to be filed with the court, you can upload it on the next screen.
+  If you have a record appendix that needs to be filed with the court, you can upload it on the next screen. You may only upload 60 pages at a time and a maximum of 15 MB, but you will have a chance to upload multiple documents. 
 fields:
   - Do you have a record appendix to upload?: record_appendix_document.exhibits.has_exhibits
     datatype: yesnoradio
@@ -570,11 +600,28 @@ id: impounded upload question
 question: |
   Do you have any impounded documents you want to upload?
 subquestion: |
-  If you have impounded documents that need to be filed with the court, you can upload them on the next screen.
+  If you have impounded documents that need to be filed with the court, you can upload them on the next screen. You may only upload 60 pages at a time and a maximum of 15 MB, but you will have a chance to upload multiple documents. 
 fields:
   - Do you have any impounded documents you want to upload?: impounded_document.exhibits.has_exhibits
     datatype: yesnoradio
 continue button field: impounded_upload_question
+---
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+id: names of opposing parties
+question: |
+  % if user_started_case:
+  Name of ${ ordinal(i) } **Appellee** or respondent in this
+  matter
+  % else:
+  Name of ${ ordinal(i) } **plaintiff** or petitioner in this matter
+  % endif
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')
 ---
 #id: impounded upload
 #question: |
@@ -890,6 +937,7 @@ fields:
   - note: |
       You will have a chance to upload multiple documents. 
       You can also add additional pages to this document.
+      Upload each document in the order you want it to appear in the appendix, and with the title you want to appear for the document. 
     show if: x.has_exhibits
   - First document title: x[0].title
     maxlength: 60 # longer might break TOC
@@ -934,6 +982,7 @@ fields:
   - note: |
       You will have a chance to upload multiple documents. 
       You can also add additional pages to this document.
+      Upload each document in the order you want it to appear in the appendix, and with the title you want to appear for the document. 
     show if: x.has_exhibits
   - First document title: x[0].title
     maxlength: 60 # longer might break TOC
