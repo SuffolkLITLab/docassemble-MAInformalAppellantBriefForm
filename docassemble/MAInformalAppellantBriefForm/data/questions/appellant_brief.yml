@@ -87,6 +87,7 @@ objects:
           title="Record Appendix",
           filename="record_appendix",
           add_page_numbers=True,
+          page_number_prefix="RA",
           include_table_of_contents=True,
           include_exhibit_cover_pages=True,
           required=False,
@@ -95,6 +96,7 @@ objects:
           title="Impounded Record Appendix",
           filename="impounded_record_appendix_document",
           add_page_numbers=True,
+          page_number_prefix="IRA",
           inlcude_table_of_contents=True,
           include_exhibit_cover_pages=True,
           requried=True,
@@ -103,110 +105,16 @@ objects:
 sections:
   - review_appellant_brief: Review your answers
 ---
-#################### Interview order #####################
-comment: |
-  Controls order and branching logic for questions specific to this form
-id: interview_order_appellant_brief
-code: |
-  # Set the allowed courts for this interview
-
-  nav.set_section('Introduction')
-  
-  allowed_courts
-  
-  nav.set_section("User information")
-
-  set_progress(10)
-  #user_role = 'plaintiff'
-  user_ask_role = 'plaintiff'
-  users.gather()
-  users[0].pronouns
-  users[0].address.address
-  users[0].address.city
-  users[0].address.state
-  users[0].address.zip
-  users[0].phone_number
-  set_parts(subtitle=str(users))
-  
-  Information
-
-  nav.set_section('Record appendix upload')
-
-  set_progress(20)
-  
-  record_appendix
-  record_appendix_upload_question
-  if record_appendix_document.exhibits.has_exhibits == True:
-    record_appendix_document.exhibits.gather()
-    appendix
-  
-  
-  impounded_record_appendix
-  impounded_upload_question
-  if impounded_document.exhibits.has_exhibits:
-    impounded_document.exhibits.gather()
-
-  nav.set_section('Court information')
-  
-  set_progress(30)
-  trial_court
-  decision_date
-
-  nav.set_section('Writing your informal brief')
-
-  set_progress(32)
-  docket_number
-  appeal_issues
-  challenged_judgments
-  set_progress(45)
-  appeal_facts
-  appeal_arguments
-  set_progress(55)
-  appeal_conclusion
-  support
-  users[0].signature
-  users[0].signature_date
-  
-  nav.set_section('Other parties')
-  
-  set_progress(65)
-  other_parties[0].address.address
-  other_parties[0].address.city
-  other_parties[0].address.state
-  other_parties[0].address.zip
-  other_parties[0].email
-  set_progress(75)
-
-  nav.set_section ('Certificate of service')
-
-  set_progress(80)
-  certificate_of_service
-  filing_institution
-  filing_electronic
-  filing_mail
-
-  set_progress(90)
-  
-  signature_fields
-  interview_order_appellant_brief = True
-  
-#  nav.set_section('affidavit of indigency')
-
-#  set_progress(95)
-#  indigency_intro
-#  fees['Filing fee'].waive = True
-#  fees['Filing fee'].amount = 300.00
-#  ask_affidavit_questions
-
----
 sections: 
   - Introduction
-  - User information
+  - Case information
+  - Party information
   - Record appendix upload
-  - Court information
+  - Impounded record appendix upload
   - Writing your informal brief
-  - Other parties
+  - Review and sign
   - Certificate of service
+  - Download
   #- Affidavit of indigency
 ---
 features:
@@ -237,6 +145,118 @@ subquestion: |
 buttons:
   Continue: continue
 ---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  Information
+  appellant_brief_intro
+  recommendations
+  due_date
+  attorney
+  
+  nav.set_section('Introduction')
+  allowed_courts
+
+  nav.set_section('Case information')
+  set_progress(30)
+  #trial_court
+  court_department
+  decision_date
+  docket_number
+  
+  nav.set_section("Party information")
+
+  set_progress(10)
+  #user_role = 'plaintiff'
+  user_ask_role = 'plaintiff'
+  users.gather()
+  users[0].pronouns
+  users[0].mobile_number
+
+  other_parties.gather()
+ 
+  for party in users:
+    party.address.address
+    party.address.city
+    party.address.state
+    party.address.zip
+    #party.address.email
+
+  for party in other_parties:
+    party.address.address
+    party.address.city
+    party.address.state
+    party.address.zip
+    #party.address.email
+
+  nav.set_section('Record appendix upload')
+  set_progress(20)
+  #record_appendix
+  record_appendix_upload_question
+  if record_appendix_document.exhibits.has_exhibits == True:
+    record_appendix_document.exhibits.gather()
+    appendix_volume_total =1
+    #appendix
+
+  nav.set_section('Impounded record appendix upload')
+  #impounded_record_appendix
+  #impounded_upload_question
+  if impounded_document.exhibits.has_exhibits:
+    impounded_document.exhibits.gather()
+
+  nav.set_section('Writing your informal brief')
+  set_progress(32)
+  appeal_issues
+  challenged_judgments
+  set_progress(45)
+  appeal_facts
+  appeal_arguments
+  set_progress(55)
+  appeal_conclusion
+  users[0].signature_date = today()
+
+  nav.set_section('Review and sign')
+  appellant_brief_preview_question
+  users[0].signature
+  support
+  
+  nav.set_section ('Certificate of service')
+  set_progress(80)
+  certificate_of_service
+  filing_institution
+  filing_electronic
+  if filing_electronic:
+    for party in users:
+      party.address.email
+    for party in other_parties:
+      party.address.email
+
+  filing_mail
+
+  set_progress(90)
+  
+  signature_fields
+  interview_order_appellant_brief = True
+  
+  #signature_date
+  # impounded_document
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  
+  nav.set_section('Download')
+  appellant_brief_download
+  
+---
 mandatory: True
 question: |
   Informal Brief - Massachusetts Appeals Court
@@ -249,31 +269,26 @@ subquestion: |
 
   We hope you find this interview helpful. 
 field: sees_nav_bar
+
 ---
-###################### Main order ######################
-comment: |
-  This block includes the logic for standalone interviews.
-  Delete mandatory: True to include in another interview
-mandatory: True
-code: |
-  al_intro_screen
-  appellant_brief_intro
-  recommendations
-  due_date
-  attorney
-  interview_order_appellant_brief
-  signature_date
-  # impounded_document
-  # Store anonymous data for analytics / statistics
-  store_variables_snapshot(
-      persistent=True,
-      data={
-          "zip": showifdef("users[0].address.zip"),
-          "reached_interview_end": True,
-      },
-  )
-  appellant_brief_download
+id: user i's emails
+question: |
+  % if i == 0 and al_person_answering == "user":
+  What is your email address?
+  % else:
+  What is ${ users[i] }'s email address?
+  % endif
+fields:
+  - email: users[i].address.email
+    
 ---
+id: other_parties i's emails
+question: |
+  What is ${ other_parties[i] }'s email address?
+fields:
+  - email: other_parties[i].address.email 
+---
+
 id: Appellant brief
 continue button field: appellant_brief_intro
 question: |
@@ -290,7 +305,7 @@ subquestion: |
 id: support
 continue button field: support
 question: |
-  Awesome! You wrote your informal appellate brief 
+  You wrote your informal appellate brief 
 subquestion: |
   We just need to ask a few more questions before you're ready to file your brief with the court. If you need to take a break, you can come back to this screen later.
 ---
@@ -308,18 +323,28 @@ subquestion: |
 id: Due date
 continue button field: due_date
 question: |  
-  Your Brief's Due Date
+  Your brief's due date
 subquestion: |
     - Check with the Appeals Court for the current due date for your brief.  
 
-    - A brief for the Appeals Court is complicated and can take significant time to write and finish. Save your brief in this interview so you can return later and finish it.   
+    - If you need more time to finish and file your brief, you can file a motion with the Appeals Court to enlarge the time using the interview [here](https://courtformsonline.org/ma/forms/enlarge-time-to-file-appeals-court). 
+
+    - A brief for the Appeals Court is complicated and can take significant time to write and finish. Save your brief in this interview so you can return later and finish it.
+    
 ---
 id: Attorney
 continue button field: attorney
 question: |
   Do you want to speak with an attorney?
 subquestion: |
-  Filing this appeal may feel overwhelming. There are legal resources out there to assist you. If you would like to speak with an attorney you can see some options available in Massachusetts [here](https://www.mass.gov/legal-assistance).
+  Filing this appeal may feel overwhelming. There are legal resources out there to assist you. If you would like to speak with an attorney you can see some options available in Massachusetts by clicking on the "Legal assistance" button.
+field: attorney
+action buttons:
+  - label: Legal assistance
+    action: https://www.mass.gov/info-details/checklist-for-informal-brief-and-record-appendix-rejection-reasons
+    new window: True
+    color: warning
+    icon: sign-out-alt
 ---
 id: explain affidavit of indigency
 continue button field: indigency_intro
@@ -338,17 +363,25 @@ question: |
   Information
 subquestion: |
   You can use this form to prepare and file an informal brief if you are appealing a court’s decision to the Massachusetts Appeals Court and have opened a case on the court's panel docket.
-
-  Click this link to access a checklist for filing an appeal. [Checklist](https://www.mass.gov/doc/sample-informal-brief-rejection-checklist/download)
-continue button field: Information
+  
+  Click "View checklist" to access a checklist for filing an informal brief.
+field: Information
+action buttons:
+  - label: View checklist
+    action: https://www.mass.gov/info-details/checklist-for-informal-brief-and-record-appendix-rejection-reasons
+    new window: True
+    color: warning
+    icon: sign-out-alt   
+#  Click this link to access a checklist for filing an appeal. [Checklist](https://www.mass.gov/doc/sample-informal-brief-rejection-checklist/download)
+#continue button field: Information
 ---
-id: Lower Court Information
+id: Trial Court Information
 question: |
-  Lower Court Information
+  Trial court information
 fields:
-  - "The case was filed in the lower court on": filed_date
+  - "The case was filed in the trial court on": filed_date
     datatype: date  
-  - "The lower court decided my case on": decision_date
+  - "The trial court decided my case on": decision_date
     datatype: date
   - "The name(s) of the judge or judges who ruled on my case was Judge": judge_name
     input type: text
@@ -356,38 +389,69 @@ fields:
 ---
 id: users[0].pronouns
 question: |
-  If you would like to include your pronouns on the filing, state your pronouns here, or leave it blank.
+  What are your pronouns?
+subquestion: |
+  If you would like to include your pronouns on the filing, state your pronouns here, or leave it blank
 fields: 
   - "My pronouns are": users[0].pronouns
     input type: text
     required: False
 ---
-if: |
-  # this should only be reached if the user's address is out of state
-  not len(all_matches) and all_courts.filter_courts(allowed_courts) 
-sets:
-  - trial_court
-id: choose a court (no matching courts found)
+
+id: court_agency
 question: |
-  % if al_form_type == 'starts_case':
-  What court do you want to file in?
-  % elif al_form_type == 'appeal':
-  What is the name of the trial court your case was originally filed in?
-  % else:
-  What court is your case in?
-  % endif
-subquestion: |
-  % if not al_form_type == 'starts_case':
-  Look at your court paperwork. Match the name listed
-  there with the same court in the following. 
-  % endif
-  
-  ${ collapse_template(how_to_pick_court_help_template) }
-fields:
-  - no label: trial_court
+  Is the decision you are appealing from a {court} or an {agency}? 
+fields: 
+  - no label: inst_type
+    datatype: radio
+    choices:
+      - Court
+      - Agency
+
+  - Select the court: court_department
     datatype: object
-    object labeler: court_short_label
-    choices: all_courts.filter_courts(allowed_courts) 
+    choices: all_courts
+    show if:
+      variable: inst_type
+      is: Court
+
+  - Enter the name of the agency: agency_name
+    show if:
+      variable: inst_type
+      is: Agency
+terms:
+  court: |
+    This is the court that made the decision you are appealing, e.g. the District Court, Housing Court, or Probate and Family Court.
+  agency: |
+    These are [state administrative agencies](https://www.mass.gov/service-details/learn-about-appeals-from-administrative-agency-decisions-under-general-laws-c30a). 
+    For example, decisions from the [Department of Children and Families (DCF)](https://www.mass.gov/orgs/massachusetts-department-of-children-families), or the [Department of Transitional Assistance (DTA)](https://www.mass.gov/orgs/department-of-transitional-assistance).
+---
+  depends on:
+  - inst_type
+  code: |
+    if inst_type == "Agency":
+      court_department = agency_name
+
+#---
+#id: trial_court 
+#question: | 
+#  Select the Trial Court department and division where your case was heard.
+#fields:
+#  - no label: trial_court
+#    datatype: object
+#    choices: all_courts
+---
+id: any other opposing parties
+question: |
+  % if user_started_case:
+  Is there any other **appellee** or respondent in this
+  matter?
+  % else:
+  Is there any other **appellant** or petitioner in this matter?
+  % endif
+fields:
+  - no label: other_parties.there_is_another
+    datatype: yesnoradio
 ---
 id: Your Appeal
 question: |
@@ -478,7 +542,7 @@ question: |
 subquestion: |
   The Appeals Court docket number includes a "P" and is preceded by a year (2024) and followed by numbers, for example: **2024-P-1234**.  
 
-  [How do I find my docket number?](https://www.mass.gov/info-details/appeals-court-case-information)
+  [How do I find my docket number?](https://www.mass.gov/info-details/appeals-court-case-information#search-appeals-court-dockets-online-for-case-information)
 fields:
   - "Docket number": docket_number
 ---
@@ -486,18 +550,16 @@ id: filing_institution
 question: |
   How are you going to file this brief?
 subquestion: |
-  - If you are in a federal or state prison, then you will mail the brief.
+  * If you are in a federal or state prison, then you will mail the brief.
 
-  - An original paper copy may be **mailed** to the Appeals Court, Clerk's Office.
+  * An original paper copy may be **mailed** to the Appeals Court, Clerk's Office. Also, mail a copy to each party's lawyer, if they have a lawyer, or to the party themselves if they do not have a lawyer. You will have to print out a copy of this brief to mail it.
   
-  ######**Appeals Court**
-  ######**Clerk's Office**
-  ######**1 Pemberton Square, Room 1200**
-  ######**Boston, MA 02108**
-  
-  Also, mail a copy to each party's lawyer, if they have a lawyer, or to the party themselves if they do not have a lawyer. You will have to print out a copy of this brief to mail it.
+      ######**Appeals Court**
+      ######**Clerk's Office**
+      ######**1 Pemberton Square, Room 1200**
+      ######**Boston, MA 02108**
 
-  - You can file this brief electronically with the Appeals Court by [creating an account](https://massachusetts.tylertech.cloud/OfsWeb) and following the instructions on the website. Instructions are provided there on how to serve a copy by email to the other party or their lawyer if they have a lawyer.  
+  * You can file this brief electronically with the Appeals Court by [creating an account](https://massachusetts.tylertech.cloud/OfsWeb) and following the instructions on the website. Instructions are provided there on how to serve a copy by email to the other party or their lawyer if they have a lawyer.  
 fields:
   - "Are you in federal or state prison?": filing_institution
     datatype: yesnoradio
@@ -505,6 +567,15 @@ fields:
     datatype: yesnoradio
   - "Are you filing this brief electronically?": filing_electronic
     datatype: yesnoradio
+validation code: |
+  if not filing_institution:
+    if filing_mail and filing_electronic:
+      validation_error("You can't choose both mail and electronic filing.", field="filing_mail")
+    if not filing_mail and not filing_electronic:
+      validation_error("You must choose mail or electronic filing.", field="filing_mail")
+  else:
+    if filing_electronic:
+      validation_error("You must mail your brief.", field="filing_institution")
 ---
 id: certificate_of_service
 question: |
@@ -512,7 +583,9 @@ question: |
 subquestion: |
   All papers filed in the Appeals Court must be sent to all other parties to the case, or their attorney(s), and filed along with a Certificate of Service stating that you completed this step.  This is called "service," and can be done by email or regular mail.  
   
-  If the Certificate of Service is not completed, this filing will not be accepted.  If you do not serve the other party or parties before filing documents in the Appeals Court, the filing may be struck and, if you are an appellant, the appeal may be dismissed.
+  **If the Certificate of Service is not completed, this filing will not be accepted.  If you do not serve the other party or parties before filing documents in the Appeals Court, the filing may be struck.**
+
+  The Certificate of Service will be automatically attached to your downloadable brief.
 continue button field: certificate_of_service
 ---
 id: user role
@@ -548,7 +621,7 @@ id: record appendix
 question: |
   Do you have your record appendix?
 subquestion: |
-  If you are the appealing party, your informal brief must be accompanied by a separate document called the **Record Appendix**. The Record Appendix contains copies of all the documents filed in or created by the lower court or agency that are not impounded **and are relevant to the Appeals Court's review of the issues raised on appeal, including copies of all documents you have referenced in your informal brief.** A Record Appendix template is provided as part of this pilot program. Please note that there is a special procedure for filing impounded information that is described below and in section (d) (4) of the Informal Brief Guidance.
+  If you are the appealing party, your informal brief must be accompanied by a separate document called the **Record Appendix**. The Record Appendix contains copies of all the documents filed in or created by the lower court or agency that are not impounded **and are relevant to the Appeals Court's review of the issues raised on appeal, including copies of all documents you have referenced in your informal brief.** There is a special procedure for filing "impounded" information that is described later in the interview and in section (d) (4) of the Informal Brief Guidance below.
 
   Examples of documents that must be included in the Record Appendix are the trial court docket sheet; the order(s), ruling(s), or judgment(s) that you challenge, including any findings of fact, memorandum of decision, or jury verdict slips; relevant exhibits filed in the lower court or agency; relevant motions, memoranda, pleadings, or other documents filed by the party filing the informal brief or the other party or parties to the case; and the notice(s) of appeal.
   
@@ -568,43 +641,61 @@ subquestion: |
 
   **You must file a record appendix on the next screen**
 
-continue button field: record_appendix
+field: record_appendix_upload_question
+buttons:
+  - "Upload record appendix": True
+  #- "Skip upload": False
+#continue button field: record_appendix
 ---
-id: record appendix upload question
-question: |
-  Do you have a record appendix to upload?
-subquestion: |
-  If you have a record appendix that needs to be filed with the court, you can upload it on the next screen. You may only upload 60 pages at a time and a maximum of 15 MB, but you will have a chance to upload multiple documents. 
-fields:
-  - Do you have a record appendix to upload?: record_appendix_document.exhibits.has_exhibits
-    datatype: yesnoradio
-continue button field: record_appendix_upload_question
+  depends on:
+  - impounded_record_appendix
+  code: |
+    impounded_document.exhibits.has_exhibits = impounded_record_appendix
+---
+  depends on:
+  - record_appendix_upload_question
+  code: |
+    record_appendix_document.exhibits.has_exhibits = record_appendix_upload_question
+#---
+#id: record appendix upload question
+#question: |
+#  Do you have a record appendix to upload?
+#subquestion: |
+#  If you have a record appendix that needs to be filed with the court, #you can upload it on the next screen. You may only upload 60 pages at a #time and a maximum of 15 MB, but you will have a chance to upload #multiple documents. 
+#fields:
+#  - Do you have a record appendix to upload?: #record_appendix_document.exhibits.has_exhibits
+#    datatype: yesnoradio
+#continue button field: record_appendix_upload_question
 ---
 id: impounded record appendix
 question: |
   Do you have your impounded record appendix?
 subquestion: |
-  In addition to information that is automatically impounded or confidential under a law or court rule, such as the names of children or victims of certain crimes or financial statements in a divorce or child support case, any information or document that was impounded in the trial court continues to be impounded in the Appeals Court.  You are responsible for finding out which if any such laws or rules apply in your case. 
-  
-  Documents containing impounded information must be filed in a separate record appendix volume whose cover states it "Contains Impounded Material."  Like your regular record appendix, this impounded volume of appendix must have consecutive page numbers, with the cover page being page one, and must have a table of contents listing each document along with the page where it begins.  A template is provided as part of this pilot program.
+  In addition to information that is automatically impounded or confidential under a law or court rule, such as the names of children or victims of certain crimes or financial statements in a divorce or child support case, any information or document that was impounded in the trial court continues to be impounded in the Appeals Court. You are responsible for finding out which if any such laws or rules apply in your case.
+
+  **Documents containing impounded information must be filed in a separate record appendix volume from the supplemental appendix if you choose to file one with a cover stating "Contains Impounded Material".** 
   
   Documents that are not impounded but appear in an appendix and contain confidential or personal identifying information (PII) must be "redacted," which means the confidential information and PII is blacked out so it cannot be seen.  Examples of PII are Social Security numbers, taxpayer identification numbers, driver's license numbers, State-issued ID card numbers, passport numbers, financial account numbers, and credit or debit card numbers.
 
   [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program).
 
-    **You can upload these documents on the next screen**
+    **You can upload documents on the next screen.**
   
-continue button field: impounded_record_appendix
+field: impounded_record_appendix 
+buttons:
+  - "Upload impounded record appendix": True
+  - "Skip": False
+#continue button field: impounded_record_appendix
 ---
-id: impounded upload question
-question: |
-  Do you have any impounded documents you want to upload?
-subquestion: |
-  If you have impounded documents that need to be filed with the court, you can upload them on the next screen. You may only upload 60 pages at a time and a maximum of 15 MB, but you will have a chance to upload multiple documents. 
-fields:
-  - Do you have any impounded documents you want to upload?: impounded_document.exhibits.has_exhibits
-    datatype: yesnoradio
-continue button field: impounded_upload_question
+#id: impounded upload question
+#question: |
+#  Do you have any impounded documents you want to upload?
+#subquestion: |
+#  If you have impounded documents that need to be filed with the court, you can upload them on the next screen. You may only upload 60 pages at a time and a maximum of 15 MB, but you will have a chance to upload multiple documents. 
+#fields:
+#  - Do you have any impounded documents you want to upload?: impounded_document.exhibits.has_exhibits
+#    datatype: yesnoradio
+#continue button field: impounded_upload_question
 ---
 sets:
   - other_parties[i].name.first
@@ -674,7 +765,9 @@ subquestion: |
   
   ${ al_court_bundle.as_pdf(key='preview') }
 
-  Click the image to open it in a new tab. Click the "Edit answers" button
+  Click the image to open it in a new tab. 
+  
+  Click the "Edit answers" button
   to edit your answers.
 
   ${ action_button_html(url_action('review_appellant_brief'), label='Edit answers', color='info') }
@@ -690,21 +783,17 @@ event: review_appellant_brief
 question: |
   Review your answers
 review:
-  - Edit: users.revisit
+  - Edit: trial_court
     button: |
-      **Users**
-
-      % for item in users:
-        * ${ item }
-      % endfor
-  - Edit: appeal_arguments
+      **Trial court**
+      
+      % if defined("trial_court.name.first"):
+      * name: ${ trial_court.name.full() }
+      % endif
+  - Edit: filed_date
     button: |
-      **Write your argument**:
-      > ${ single_paragraph(appeal_arguments) }
-  - Edit: docket_number
-    button: |
-      **Docket number**:
-      ${ docket_number }
+      **Write the date the case was filed in the lower court**:
+      ${ filed_date }
   - Edit: decision_date
     button: |
       **What date did the lower court decide your case?**:
@@ -713,13 +802,17 @@ review:
     button: |
       **What was the name of the judge in the lower court?**:
       ${ judge_name }
-  - Edit: trial_court
+  - Edit: docket_number
     button: |
-      **Trial court**
-      
-      % if defined("trial_court.name.first"):
-      * name: ${ trial_court.name.full() }
-      % endif
+      **Docket number**:
+      ${ docket_number }
+  - Edit: users.revisit
+    button: |
+      **Users**
+
+      % for item in users:
+        * ${ item }
+      % endfor
   - Edit: other_parties.revisit
     button: |
       **Other parties**
@@ -729,31 +822,31 @@ review:
       % endfor
   - Edit: appeal_issues
     button: |
-      **Write what you are appealing**:
+      **Issue(s) or claim(s) of error on appeal**:
       > ${ single_paragraph(appeal_issues) }
-  - Edit: appeal_conclusion
-    button: |
-      **Write a summary of what you want from the court**:
-      > ${ single_paragraph(appeal_conclusion) }
-  - Edit: filed_date
-    button: |
-      **Write the date the case was filed in the lower court**:
-      ${ filed_date }
-  - Edit: appeal_facts
-    button: |
-      **Write all of the facts about your case**:
-      > ${ single_paragraph(appeal_facts) }
   - Edit: challenged_judgments
     button: |
       **Write the court decisions you want changed**:
       > ${ single_paragraph(challenged_judgments) }
-  - Edit: record_appendix_document.exhibits.has_exhibits
+  - Edit: appeal_facts
+    button: |
+      **Write all of the facts about your case**:
+      > ${ single_paragraph(appeal_facts) }
+  - Edit: appeal_arguments
+    button: |
+      **Write your argument**:
+      > ${ single_paragraph(appeal_arguments) }
+  - Edit: appeal_conclusion
+    button: |
+      **Write a summary of what you want from the court**:
+      > ${ single_paragraph(appeal_conclusion) }
+  - Edit: record_appendix_upload_question
     button: |
       **Exhibits attached?**
       
-      % if record_appendix_document.exhibits.has_exhibits:
+      % if record_appendix_upload_question:
       Yes
-      % elif not record_appendix_document.exhibits.has_exhibits:
+      % elif not record_appendix_upload_question:
       No
       % endif
   - note: |
@@ -767,7 +860,30 @@ review:
 
       ${ record_appendix_document.exhibits.add_action() }
     css class: bg-secondary-subtle
-    show if: record_appendix_document.exhibits.has_exhibits
+    show if: record_appendix_upload_question
+
+  - Edit: impounded_record_appendix
+    button: |
+      **Impounded documents attached?**
+
+      % if impounded_record_appendix:
+      Yes
+      % else:
+      No
+      % endif
+
+  - note: |
+      **Impounded exhibits**:
+
+      % if impounded_document.exhibits.there_are_any:
+      ${ impounded_document.exhibits.in_progress_exhibits }
+      % else:
+      You have not attached any impounded exhibits yet
+      % endif
+
+      ${ impounded_document.exhibits.add_action() }
+    css class: bg-secondary-subtle
+    show if: impounded_record_appendix
 ---
 continue button field: users.revisit
 question: |
@@ -837,20 +953,13 @@ event: appellant_brief_download
 question: |
   All done
 subquestion: |
-  Thank you ${users}. Your form is ready to download and deliver.
-
-  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+  Thank you ${users}. Your form is ready to download and deliver. Follow the downloadable instruction. View, download and send your form below. 
 
   [eFile my appeal](https://massachusetts.tylertech.cloud/OfsWeb)
 
-  ${ action_button_html(url_action('review_appellant_brief'), label='Edit answers', color='info') }
-
-
   ${ al_user_bundle.download_list_html() }
 
-
-  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
-  
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }  
 
 #  ${ impounded_document }
 
@@ -870,7 +979,7 @@ objects:
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, appellant_brief_attachment, record_appendix_document, impounded_document], filename="appellant_brief", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_Post_interview_instructions, appellant_brief_attachment, record_appendix_document, impounded_document],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[appellant_brief_attachment, record_appendix_document, impounded_document],  filename="appellant_brief", title="All forms to deliver to court", enabled=True)
 # Removed affidavit_of_indigency_attachment
 ---
 # Each attachment defines a key in an ALDocument. We use i as the placeholder here so the same template is 
@@ -926,7 +1035,7 @@ attachment:
   docx template file: exhibit_cover_sheet.docx
 ---
 id: any exhibits
-object: impounded_document.exhibits
+generic object: impounded_document.exhibits
 question: |
   Do you have any impounded documents you want to upload?
 subquestion: |
@@ -984,10 +1093,10 @@ fields:
       You can also add additional pages to this document.
       Upload each document in the order you want it to appear in the appendix, and with the title you want to appear for the document. 
     show if: x.has_exhibits
-  - First document title: x[0].title
+  - ocument title: x[i].title
     maxlength: 60 # longer might break TOC
     show if: x.has_exhibits
-  - Upload the first document: x[0].pages
+  - Upload the first Document: x[i].pages
     show if: x.has_exhibits
     datatype: files
     maximum image size: 1024
