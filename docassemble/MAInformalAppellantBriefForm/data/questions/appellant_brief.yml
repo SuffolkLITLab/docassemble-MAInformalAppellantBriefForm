@@ -166,7 +166,6 @@ code: |
   allowed_courts
 
   nav.set_section('Case information')
-  set_progress(30)
   #trial_court
   court_department
   decision_date
@@ -174,7 +173,6 @@ code: |
   
   nav.set_section("Party information")
 
-  set_progress(10)
   #user_role = 'plaintiff'
   user_ask_role = 'plaintiff'
   users.gather()
@@ -198,7 +196,6 @@ code: |
     #party.address.email
 
   nav.set_section('Record appendix upload')
-  set_progress(20)
   #record_appendix
   record_appendix_upload_question
   if record_appendix_document.exhibits.has_exhibits == True:
@@ -213,19 +210,15 @@ code: |
     impounded_document.exhibits.gather()
 
   nav.set_section('Writing your informal brief')
-  set_progress(32)
   appeal_issues
   challenged_judgments
-  set_progress(45)
   appeal_facts
   appeal_arguments
-  set_progress(55)
   appeal_conclusion
   users[0].signature_date = today()
   support
   
   nav.set_section ('Certificate of service')
-  set_progress(80)
   certificate_of_service
   filing_institution
   filing_electronic
@@ -241,8 +234,7 @@ code: |
   appellant_brief_preview_question
   users[0].signature
 
-  set_progress(90)
-  
+  set_progress(95)
   signature_fields
   #interview_order_appellant_brief = True
   
@@ -267,7 +259,7 @@ question: |
 subquestion: |
   This interview helps you write an informal brief for the Massachusetts Appeals Court. The Appeals Court permits only self-represented parties (no lawyer) to file an informal brief. Check the Appeals Court's website for [information about the informal brief program](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program). 
 
-  This program simplifies filing procedures for self-represented (“pro se”) parties, promoting fair and efficient resolution of appeals that otherwise might be delayed or dismissed. Please make sure you have all of the documents you need before you get started.
+  This program simplifies filing procedures for self-represented (“pro se”) parties, promoting fair and efficient resolution of appeals that otherwise might be delayed or dismissed. Make sure you have all of the documents you need before you get started.
 
   If you think you need more time you can file this [Motion for Enlargement of Time to File a Brief](https://apps.suffolklitlab.org/run/appeal_enlarge_time/#/1)
 
@@ -331,7 +323,7 @@ question: |
 subquestion: |
     - Check with the Appeals Court for the current due date for your brief.  
 
-    - If you need more time to finish and file your brief, you can file a motion with the Appeals Court to enlarge the time using the interview [here](https://courtformsonline.org/ma/forms/enlarge-time-to-file-appeals-court). 
+    - If you need more time to finish and file your brief, you can [file a motion with the Appeals Court](https://courtformsonline.org/ma/forms/enlarge-time-to-file-appeals-court) to enlarge the time. 
 
     - A brief for the Appeals Court is complicated and can take significant time to write and finish. Save your brief in this interview so you can return later and finish it.
     
@@ -411,7 +403,7 @@ id: court_agency
 question: |
   Is the decision you are appealing from a {court} or an {agency}? 
 fields: 
-  - no label: inst_type
+  - Choose source: inst_type
     datatype: radio
     choices:
       - Court
@@ -461,7 +453,13 @@ question: |
   Is there any other **appellant** or petitioner in this matter?
   % endif
 fields:
-  - no label: other_parties.there_is_another
+  - label: |
+      % if user_started_case:
+      Is there any other appellee or respondent in this matter?
+      % else:
+      Is there any other appellant or petitioner in this matter?
+      % endif
+    field: other_parties.there_is_another
     datatype: yesnoradio
 ---
 id: Your Appeal
@@ -473,9 +471,9 @@ subquestion: |
  #####1. The judge incorrectly denied the defendant's motion to dismiss the plaintiff's complaint.  
  #####2. The judge incorrectly allowed the plaintiff's motion for summary judgment. 
  
- It is your obligation to find out if any information in your case is impounded or confidential; for more information, please go to section (c) (4) of the [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program). 
+ It is your obligation to find out if any information in your case is impounded or confidential; for more information, go to section (c) (4) of the [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program). 
 
- Finally, please note that if you copy and paste text into any of the following text fields, you will need to review and correct any format issues, such as broken sentences or lines of text.
+ Finally, note that if you copy and paste text into any of the following text fields, you will need to review and correct any format issues, such as broken sentences or lines of text.
 fields:
   - "Appeal": appeal_issues
     input type: area
@@ -607,24 +605,6 @@ subquestion: |
   The Certificate of Service will be automatically attached to your downloadable brief.
 continue button field: certificate_of_service
 ---
-id: user role
-question: |
-  Are you an appellant or appellee ?
-subquestion: | 
-  This form is intended for use by an appellant. 
-  
-  An appellant is a party who is asks a higher court to review the decision of the lower court, regardless of the appellant's party designation (plaintiff, defendant, etc.) in the trial court.  An appellant is a party that has filed a notice of appeal in the trial court.  
-  
-  An appellee is a party who is not appealing and intends to respond to the appellant’s request for a review of the lower court’s decision, regardless of their party designation in the trial court. 
-
-  If you are an appellee, this interview will not help you. Instead, you can review the Appeals Court's informal brief pilot guidance page for the appellee brief form. 
-
-fields: 
-  - no label: user_role 
-    input type: radio 
-    choices: 
-      - Appellant: APPELLANT #only offering one option for the user. We can make this conditional to direct the user to either the appellant brief or appellee brief.
----
 id: Conclusion
 question: |
   Conclusion/Relief requested
@@ -652,7 +632,7 @@ subquestion: |
   
   **The Appeals Court may decline to consider arguments in an informal brief that are not supported by evidence in the Record Appendix or transcript(s).**
 
-  Please note that only materials that were presented to the lower court or agency may be included in the Record Appendix. If you wish to include materials that were not presented to the lower court or agency, you must file a motion in the Appeals Court seeking permission to do so. (Such motions are usually denied because the Appeals Court reviews the judge's decision based only on the information that was before the judge.)
+  Note that only materials that were presented to the lower court or agency may be included in the Record Appendix. If you wish to include materials that were not presented to the lower court or agency, you must file a motion in the Appeals Court seeking permission to do so. (Such motions are usually denied because the Appeals Court reviews the judge's decision based only on the information that was before the judge.)
 
   The appellee (party responding to an appeal) can also file a Record Appendix with the appellee brief. If they do, the appellee's Record Appendix will be called the "supplemental appendix." You may file a reply brief in response to the appellee brief and supplemental appendix, but you may not file another appendix.
 
@@ -996,7 +976,7 @@ subject: |
 content: |
   Attached are ${ users[0] }'s' informal brief documents.
 
-  Please review the attached documents before filing or serving them.
+  Be sure to review the attached documents before filing or serving them.
 ---
 id: download appellant_brief
 event: appellant_brief_download
@@ -1084,44 +1064,3 @@ generic object: ALExhibit
 attachment:
   variable name: x.cover_page
   docx template file: exhibit_cover_sheet.docx
----
-id: any exhibits
-generic object: impounded_document.exhibits
-question: |
-  Do you have any impounded documents you want to upload?
-subquestion: |
-  Do you have any **impounded** documents that you want to provide to the court? Upload them here if you have impounded material.
-fields:
-  - Do you have any impounded documents you want to upload?: x.has_exhibits
-    datatype: yesnoradio
-  - note: |
-      You will have a chance to upload multiple documents. 
-      You can also add additional pages to this document.
-      Upload each document in the order you want it to appear in the appendix, and with the title you want to appear for the document. 
-    show if: x.has_exhibits
-  - First document title: x[0].title
-    maxlength: 60 # longer might break TOC
-    show if: x.has_exhibits
-  - Upload the first document: x[0].pages
-    show if: x.has_exhibits
-    datatype: files
-    maximum image size: 1024
-    image upload type: jpeg
-    accept: |
-      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"  
-validation code: |
-  if x.has_exhibits:
-    if not x[i].pages:
-      validation_error("Please upload your document or answer 'No' to the previous question.")
-    full_size = sum(a_page.size_in_bytes() for a_page in x[i].pages)
-    if full_size > (15 * 1024 * 1024):
-      validation_error("Upload a file smaller than 15 MB.")
-    if hasattr(x, 'maximum_size'):
-      if full_size > x.maximum_size:
-        validation_error(f"Upload a file smaller than {humanize.naturalsize(x.maximum_size)}")
-    try:
-      pdf_concatenate(x[i].pages)
-    except:
-      validation_error("Unable to convert this file. Please upload a new one.")
-    x[i].pages.complete_attribute = 'ok'
-    x[i].pages.reset_gathered()
