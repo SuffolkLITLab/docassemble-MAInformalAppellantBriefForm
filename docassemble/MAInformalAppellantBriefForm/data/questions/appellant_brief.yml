@@ -10,20 +10,20 @@ metadata:
   short title: >-
     Appellant informal brief
   description: |-
-    The Appeals Court permits only self-represented parties (no lawyer) to file an informal brief.  This interview will help you write an informal brief for filing with the Appeals Court. Check the Appeals Court's website for information about the informal brief pilot program.
+    This interview will help you write an informal brief for filing with the Appeals Court. The Appeals Court permits only self-represented parties (no lawyer) to file an informal brief. Check the Appeals Court's website for [information about the informal brief program](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program). 
   can_I_use_this_form: |
     If you are appealing a case, you can use this interview to write an informal brief to the Appeals Court.
   before_you_start: |
         You will need to know the following information to complete this interview:
 
-        •	The Appeals Court panel case docket number for your case (has a "P", for example, 2024-P-1234)
-        •	The trial court  your case was decided in
-        •	The names of the plaintiff(s) and defendant(s) in your trial court case, and if they are represented by a lawyer, the lawyer's name and email or business mailing address
-        •	**Recommendations:**
-        First, organize your relevant lower court documents and upload them in this interview to create your record appendix. Second, when preparing your brief's facts, case history, and legal argument, use the pages of the record appendix to reference where the judges can find support for your facts. Third, use the "Sign in or register to save your progress" option available on each page to work on your brief.  
-        •	**Your Brief's Due Date:**
-        Check with the Appeals Court for the current due date for your brief.
-        •	If you need more time to finish and file your brief, you can file a motion with the Appeals Court to enlarge the time using the interview at [this website] (https://courtformsonline.org/ma/forms/enlarge-time-to-file-appeals-court)  
+        -	The Appeals Court panel case docket number for your case (has a "P", for example, 2024-P-1234)
+        -	The trial court  your case was decided in
+        -	The names of the plaintiff(s) and defendant(s) in your trial court case, and if they are represented by a lawyer, the lawyer's name and email or business mailing address
+ 
+        Your Brief's Due Date:
+        
+        - Check with the Appeals Court for the current due date for your brief.
+        -	If you need more time to finish and file your brief, you can file a motion with the Appeals Court to enlarge the time using the interview at [this website] (https://courtformsonline.org/ma/forms/enlarge-time-to-file-appeals-court)  
   maturity: production
   estimated_completion_minutes: 120
   estimated_completion_delta: 30
@@ -39,6 +39,9 @@ metadata:
     - "CO-07-05-00-00"
   authors:
     - Jack Brandt
+    - Sam Darkwa
+    - Erin Gray
+    - Kathryn Lynch
   original_form:
     - https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program
   original_form_published_on: ""
@@ -121,7 +124,7 @@ features:
   navigation: True
   progress bar: True
 ---
-mandatory: True
+#mandatory: True
 code: |
   menu_items = [ action_menu_item('Roadmap', 'road_map') ]
 ---
@@ -130,6 +133,7 @@ code: |
   if returning_user(minutes=0.5):
     welcome_back
 ---
+id: welcome back
 event: welcome_back
 question: |
   Welcome back!
@@ -227,9 +231,9 @@ code: |
   filing_electronic
   if filing_electronic:
     for party in users:
-      party.address.email
+      party.email
     for party in other_parties:
-      party.address.email
+      party.email
 
   filing_mail
 
@@ -240,7 +244,7 @@ code: |
   set_progress(90)
   
   signature_fields
-  interview_order_appellant_brief = True
+  #interview_order_appellant_brief = True
   
   #signature_date
   # impounded_document
@@ -257,11 +261,11 @@ code: |
   appellant_brief_download
   
 ---
-mandatory: True
+id: intro screen
 question: |
   Informal Brief - Massachusetts Appeals Court
 subquestion: |
-  This interview helps you write an informal brief for the Massachusetts Appeals Court. The Appeals Court permits only self-represented parties (non lawyers) to file an informal brief. Check the Appeals Court's website for [information about the informal brief program](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program). 
+  This interview helps you write an informal brief for the Massachusetts Appeals Court. The Appeals Court permits only self-represented parties (no lawyer) to file an informal brief. Check the Appeals Court's website for [information about the informal brief program](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program). 
 
   This program simplifies filing procedures for self-represented (“pro se”) parties, promoting fair and efficient resolution of appeals that otherwise might be delayed or dismissed. Please make sure you have all of the documents you need before you get started.
 
@@ -294,7 +298,7 @@ continue button field: appellant_brief_intro
 question: |
   Appellant informal brief
 subquestion: |
-  This interview will help you write an informal brief for filing with the Appeals Court. The Appeals Court permits only self-represented parties (non lawyers) to file an informal brief. Check the Appeals Court's website for [information about the informal brief program](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program). 
+  This interview will help you write an informal brief for filing with the Appeals Court. The Appeals Court permits only self-represented parties (no lawyer) to file an informal brief. Check the Appeals Court's website for [information about the informal brief program](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program). 
   
   You will need to know the following information to complete this interview:
 
@@ -305,7 +309,7 @@ subquestion: |
 id: support
 continue button field: support
 question: |
-  You wrote your informal appellate brief 
+  Only a few more questions 
 subquestion: |
   We just need to ask a few more questions before you're ready to file your brief with the court. If you need to take a break, you can come back to this screen later.
 ---
@@ -435,9 +439,10 @@ terms:
   - inst_type
   code: |
     if inst_type == "Agency":
-      court_department = agency_name
+      court_department = ""
       trial_court = agency_name
-
+    else:
+      trial_court = court_department
 #---
 #id: trial_court 
 #question: | 
@@ -586,7 +591,7 @@ validation code: |
       validation_error("You must choose mail or electronic filing.", field="filing_mail")
   else:
     if filing_electronic:
-      validation_error("You must mail your brief.", field="filing_institution")
+      validation_error("You must mail your brief if filing from prison", field="filing_institution")
     if not filing_mail and not filing_electronic:
       validation_error("You must choose mail or electronic filing.", field="filing_mail")
 
@@ -760,9 +765,9 @@ question: |
 subquestion: |
   By signing your name, you agree to
   our terms and conditions.
-signature: user[0].signature
+signature: users[0].signature
 under: |
-  ${ user[0].signature }
+  ${ users[0].signature }
 ---
 id: Today s Date
 question: |
@@ -917,6 +922,7 @@ review:
       You will file/serve electronically.
       % endif
 ---
+id: edit users
 continue button field: users.revisit
 question: |
   Edit users
@@ -936,6 +942,8 @@ columns:
       row_item.signature_date if defined("row_item.signature_date") else ""
   - Name: |
       row_item.name.full() if defined("row_item.name.first") else ""
+  - Mobile number: |
+      row_item.mobile_number if defined("row_item.mobile_number") else ""
   - Phone number: |
       row_item.phone_number if defined("row_item.phone_number") else ""
   - Email: |
@@ -949,11 +957,13 @@ edit:
   - address.zip
   - signature_date
   - name.first
+  - mobile_number
   - phone_number
   - email
 confirm: True
 
 ---
+id: edit other parties
 continue button field: other_parties.revisit
 question: |
   Edit other_parties
@@ -980,20 +990,29 @@ edit:
   - email
 confirm: True
 ---
+template: appellant_brief_email_template
+subject: |
+  Appellant's informal brief documents
+content: |
+  Attached are ${ users[0] }'s' informal brief documents.
+
+  Please review the attached documents before filing or serving them.
+---
 id: download appellant_brief
 event: appellant_brief_download
 question: |
   Almost done
 subquestion: |
-  Thank you ${users[0]}. Your form is ready to download and deliver. Follow the downloadable instruction. View, download and send your form below. 
+  ${users[0]}, Your form is ready to download and deliver. You can view and download your documents below. Follow the downloadable instruction. There you will find next steps, including how to [eFile your appeal](https://massachusetts.tylertech.cloud/OfsWeb). Should you need to edit anything, you can click the "Edit answers" button to edit your answers.  ${ action_button_html(url_action('review_appellee_brief'), label='Edit answers', color='info') }
 
-  [eFile my appeal](https://massachusetts.tylertech.cloud/OfsWeb)
-
+  Alternativly, you can email yourself an editable copy (Word doc) of your brief by clicking *Include an editable copy* under *Get a copy of the documents in email* and hitting *Send* to email a copy to yourself.
+  
   ${ al_user_bundle.download_list_html() }
 
-  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }  
-
-#  ${ impounded_document }
+  ${ al_user_bundle.send_button_html(
+    show_editable_checkbox=True,
+    template_name="appellant_brief_email_template"
+  ) }
 
 progress: 100
 always include editable files: True
@@ -1092,62 +1111,17 @@ fields:
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"  
 validation code: |
   if x.has_exhibits:
-    if len(x) == 0 or not x[0].pages:
+    if not x[i].pages:
       validation_error("Please upload your document or answer 'No' to the previous question.")
-    full_size = sum(a_page.size_in_bytes() for a_page in x[0].pages)
+    full_size = sum(a_page.size_in_bytes() for a_page in x[i].pages)
     if full_size > (15 * 1024 * 1024):
       validation_error("Upload a file smaller than 15 MB.")
     if hasattr(x, 'maximum_size'):
       if full_size > x.maximum_size:
         validation_error(f"Upload a file smaller than {humanize.naturalsize(x.maximum_size)}")
     try:
-      pdf_concatenate(x[0].pages)
+      pdf_concatenate(x[i].pages)
     except:
       validation_error("Unable to convert this file. Please upload a new one.")
-    x[0].pages.complete_attribute = 'ok'
-    x[0].pages.reset_gathered()  # force re-gathering additional pages
----
-generic object: ALExhibitList
-id: any exhibits
-question: |
-  This is where you will upload your documents. 
-subquestion: |
-  % if x.object_name() == 'record_appendix_document.exhibits':
-  Remember that you **must** upload a record appendix (non-impounded documents).
-  % elif x.object_name() == 'impounded_document.exhibits':
-  Do you have any **impounded** documents that you want to provide to the court? Upload them here if you have impounded material.
-  % endif
-fields:
-  - Do you have a document to upload on this screen?: x.has_exhibits
-    datatype: yesnoradio
-  - note: |
-      You will have a chance to upload multiple documents. 
-      You can also add additional pages to this document.
-      Upload each document in the order you want it to appear in the appendix, and with the title you want to appear for the document. 
-    show if: x.has_exhibits
-  - ocument title: x[i].title
-    maxlength: 60 # longer might break TOC
-    show if: x.has_exhibits
-  - Upload the first Document: x[i].pages
-    show if: x.has_exhibits
-    datatype: files
-    maximum image size: 1024
-    image upload type: jpeg
-    accept: |
-      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"  
-validation code: |
-  if x.has_exhibits:
-    if len(x) == 0 or not x[0].pages:
-      validation_error("Please upload your document or answer 'No' to the previous question.")
-    full_size = sum(a_page.size_in_bytes() for a_page in x[0].pages)
-    if full_size > (15 * 1024 * 1024):
-      validation_error("Upload a file smaller than 15 MB.")
-    if hasattr(x, 'maximum_size'):
-      if full_size > x.maximum_size:
-        validation_error(f"Upload a file smaller than {humanize.naturalsize(x.maximum_size)}")
-    try:
-      pdf_concatenate(x[0].pages)
-    except:
-      validation_error("Unable to convert this file. Please upload a new one.")
-    x[0].pages.complete_attribute = 'ok'
-    x[0].pages.reset_gathered()  # force re-gathering additional pages
+    x[i].pages.complete_attribute = 'ok'
+    x[i].pages.reset_gathered()
