@@ -566,7 +566,7 @@ id: filing_institution
 question: |
   How are you going to file this brief?
 subquestion: |
-  * If you are in a federal or state prison, then you will mail the brief.
+  * If you are incarcerated in a correctional facility, then you will mail the brief.
 
   * An original paper copy may be **mailed** to the Appeals Court, Clerk's Office. Also, mail a copy to each party's lawyer, if they have a lawyer, or to the party themselves if they do not have a lawyer. You will have to print out a copy of this brief to mail it.
   
@@ -577,7 +577,7 @@ subquestion: |
 
   * You can file this brief electronically with the Appeals Court by [creating an account](https://massachusetts.tylertech.cloud/OfsWeb) and following the instructions on the website. Instructions are provided there on how to serve a copy by email to the other party or their lawyer if they have a lawyer.  
 fields:
-  - "Are you in federal or state prison?": filing_institution
+  - "Are you incarcerated?": filing_institution
     datatype: yesnoradio
   - "Are you filing this brief in the mail?": filing_mail
     datatype: yesnoradio
@@ -591,7 +591,7 @@ validation code: |
       validation_error("You must choose mail or electronic filing.", field="filing_mail")
   else:
     if filing_electronic:
-      validation_error("You must mail your brief if filing from prison", field="filing_institution")
+      validation_error("You must mail your brief if filing from a correctional facility", field="filing_institution")
     if not filing_mail and not filing_electronic:
       validation_error("You must choose mail or electronic filing.", field="filing_mail")
 
@@ -627,10 +627,8 @@ subquestion: |
   Examples of documents that must be included in the Record Appendix are the trial court docket sheet; the order(s), ruling(s), or judgment(s) that you challenge, including any findings of fact, memorandum of decision, or jury verdict slips; relevant exhibits filed in the lower court or agency; relevant motions, memoranda, pleadings, or other documents filed by the party filing the informal brief or the other party or parties to the case; and the notice(s) of appeal.
   
   **This program will format and paginate your documents with a table of contents.**
-  
-  If there is more than one volume of Record Appendix, each volume must be numbered (example, vol. 1, vol. 2). The page numbers for each volume of appendix should restart, with the cover page being page one. A copy of each volume of the Record Appendix must be served on each party in the case, with the service identified in your certificate of service. 
 
-  If this is a civil case, then you, the appealing party, are responsible for giving the Appeals Court transcripts of any hearings that are relevant to the appeal. If this is a criminal case, the transcripts will be provided directly to the Appeals Court if you ordered them. Transcripts can be included in the Record Appendix as a numbered volume, or they may be filed separately as they are. 
+  If this is a civil case, then you, the appealing party, are responsible for giving the Appeals Court transcripts of any hearings that are relevant to the appeal. If this is a criminal case, the transcripts will be provided directly to the Appeals Court if you ordered them. Transcripts can be included in the Record Appendix, or they may be filed separately as they are. 
   
   **The Appeals Court may decline to consider arguments in an informal brief that are not supported by evidence in the Record Appendix or transcript(s).**
 
@@ -674,9 +672,9 @@ question: |
 subquestion: |
   In addition to information that is automatically impounded or confidential under a law or court rule, such as the names of children or victims of certain crimes or financial statements in a divorce or child support case, any information or document that was impounded in the trial court continues to be impounded in the Appeals Court. You are responsible for finding out which if any such laws or rules apply in your case.
 
-  **Documents containing impounded information must be filed in a separate record appendix volume from the supplemental appendix if you choose to file one with a cover stating "Contains Impounded Material".** 
+  **Documents containing impounded information must be filed in a separate record appendix volume from the supplemental appendix if you choose to file one with a cover stating "Contains Impounded Material".** This program will produce this cover sheet.
   
-  Documents that are not impounded but appear in an appendix and contain confidential or personal identifying information (PII) must be "redacted," which means the confidential information and PII is blacked out so it cannot be seen.  Examples of PII are Social Security numbers, taxpayer identification numbers, driver's license numbers, State-issued ID card numbers, passport numbers, financial account numbers, and credit or debit card numbers.
+  Documents that are not impounded but appear in an appendix and contain confidential or personal identifying information (PII) must be "redacted," which means the confidential information and PII is blacked out so it cannot be seen. Do NOT simpily highlights text with black as it will remain. Use a tool designed for redaction or replace the PII with the text "[REDACTED]." Examples of PII are Social Security numbers, taxpayer identification numbers, driver's license numbers, State-issued ID card numbers, passport numbers, financial account numbers, and credit or debit card numbers.
 
   [Informal Brief Guidance](https://www.mass.gov/info-details/appeals-court-informal-brief-pilot-program)
 
@@ -891,9 +889,9 @@ review:
       **Filing and service method**
 
       % if filing_institution:
-      You are in federal or state prison.
+      You are incarcerated.
       % else:
-      You are not in federal or state prison.
+      You are not incarcerated.
       % endif
 
       % if filing_mail:
